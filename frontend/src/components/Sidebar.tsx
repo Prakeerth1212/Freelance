@@ -16,6 +16,7 @@ import ReceiptIcon from '@mui/icons-material/Receipt'
 import SmartToyIcon from '@mui/icons-material/SmartToy'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import LightModeIcon from '@mui/icons-material/LightMode'
+import LogoutIcon from '@mui/icons-material/Logout'
 
 const navItems = [
   { label: 'Dashboard', path: '/', icon: <DashboardIcon /> },
@@ -106,10 +107,23 @@ export default function Sidebar({ darkMode, onToggleTheme }: SidebarProps) {
           {darkMode ? 'Light Mode' : 'Dark Mode'}
         </Button>
       </Box>
-      <Box sx={{ p: 1.5, textAlign: 'center' }}>
+      <Box sx={{ p: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Typography variant="caption" sx={{ color: darkMode ? '#999' : '#666', fontStyle: 'italic' }}>
-          User: {username}
+          {username}
         </Typography>
+        <Button
+          size="small"
+          startIcon={<LogoutIcon fontSize="small" />}
+          onClick={() => { localStorage.clear(); navigate('/login') }}
+          sx={{
+            color: darkMode ? '#ccc' : '#555',
+            textTransform: 'none',
+            minWidth: 0,
+            px: 1,
+          }}
+        >
+          Logout
+        </Button>
       </Box>
     </Box>
   )
