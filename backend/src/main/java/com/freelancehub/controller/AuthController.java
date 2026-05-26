@@ -38,4 +38,26 @@ public class AuthController {
                 "role", user.getRole()
         ));
     }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody Map<String, String> credentials) {
+        String username = credentials.get("username");
+        String password = credentials.get("password");
+
+        if (username == null || password == null || username.isBlank() || password.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Username and password are required"));
+        }
+
+        User user = authService.register(username, password);
+        if (user == null) {
+            return ResponseEntity.status(409).body(Map.of("error", "Username already exists"));
+        }
+
+        String token = authService.createToken(user);
+        return ResponseEntity.ok(Map.of(
+                "token", token,
+                "username", user.getUsername(),
+                "role", user.getRole()
+        ));
+    }
 }

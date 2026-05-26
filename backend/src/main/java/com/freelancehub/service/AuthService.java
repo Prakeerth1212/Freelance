@@ -27,6 +27,20 @@ public class AuthService {
                 .orElse(null);
     }
 
+    public User register(String username, String password) {
+        if (userDAO.findByUsername(username).isPresent()) {
+            return null;
+        }
+        User user = new User(username, password, "user");
+        return userDAO.save(user);
+    }
+
+    public String createToken(User user) {
+        String token = UUID.randomUUID().toString();
+        activeTokens.put(token, user);
+        return token;
+    }
+
     public User validateToken(String token) {
         return activeTokens.get(token);
     }
