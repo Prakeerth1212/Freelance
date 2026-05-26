@@ -29,9 +29,10 @@ const navItems = [
 interface SidebarProps {
   darkMode: boolean
   onToggleTheme: () => void
+  onLogout: () => void
 }
 
-export default function Sidebar({ darkMode, onToggleTheme }: SidebarProps) {
+export default function Sidebar({ darkMode, onToggleTheme, onLogout }: SidebarProps) {
   const location = useLocation()
   const navigate = useNavigate()
   const username = localStorage.getItem('username') || 'User'
@@ -114,7 +115,7 @@ export default function Sidebar({ darkMode, onToggleTheme }: SidebarProps) {
         <Button
           size="small"
           startIcon={<LogoutIcon fontSize="small" />}
-          onClick={() => { localStorage.clear(); navigate('/login') }}
+          onClick={() => { onLogout(); navigate('/login') }}
           sx={{
             color: darkMode ? '#ccc' : '#555',
             textTransform: 'none',

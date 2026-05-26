@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { useState, useMemo, useEffect } from 'react'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { ThemeProvider, CssBaseline, Box } from '@mui/material'
 import { lightTheme, darkTheme } from './theme'
 import Sidebar from './components/Sidebar'
@@ -13,10 +13,18 @@ import AIPage from './pages/AIPage'
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(true)
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'))
   const theme = useMemo(() => (darkMode ? darkTheme : lightTheme), [darkMode])
+  const location = useLocation()
 
-  const token = localStorage.getItem('token')
-  const isLoggedIn = !!token
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem('token'))
+  }, [location])
+
+  const handleLogout = () => {
+    localStorage.clear()
+    setIsLoggedIn(false)
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -26,6 +34,7 @@ export default function App() {
           <Sidebar
             darkMode={darkMode}
             onToggleTheme={() => setDarkMode(!darkMode)}
+            onLogout={handleLogout}
           />
         )}
         <Box sx={{ flex: 1, minHeight: '100vh', bgcolor: 'background.default' }}>
