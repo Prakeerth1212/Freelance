@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: freelancehub-backend
+    runtime: java
+    region: oregon
+    buildCommand: cd backend && mvn clean package -DskipTests
+    startCommand: java -jar backend/target/freelancehub-backend-1.0.0.jar
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: freelancehub-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: freelancehub-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: freelancehub-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: freelancehub-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: freelancehub-db
+          property: password
+      - key: GEMINI_API_KEY
+        sync: false
+
+databases:
+  - name: freelancehub-db
+    region: oregon
+    databaseName: freelancehub
+    user: freelancehub
+    plan: free
