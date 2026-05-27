@@ -14,12 +14,9 @@ import DashboardIcon from '@mui/icons-material/Dashboard'
 import PeopleIcon from '@mui/icons-material/People'
 import WorkIcon from '@mui/icons-material/Work'
 import ReceiptIcon from '@mui/icons-material/Receipt'
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
-import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import LogoutIcon from '@mui/icons-material/Logout'
-import { getCurrency, setCurrency, currencyOptions } from '../utils/currency'
 
 const navItems = [
   { label: 'Dashboard', path: '/', icon: <DashboardIcon /> },
@@ -191,44 +188,6 @@ export default function Sidebar({ darkMode, onToggleTheme, onLogout }: SidebarPr
           </ListItemIcon>
           <ListItemText
             primary={darkMode ? 'Light Mode' : 'Dark Mode'}
-            primaryTypographyProps={{ fontSize: '0.85rem', fontWeight: 500 }}
-          />
-        </ListItemButton>
-      </Box>
-
-      <Box sx={{ px: 1.5, pb: 1.5 }}>
-        <ListItemButton
-          onClick={() => {
-            const opts = currencyOptions()
-            const idx = opts.findIndex((o) => o.value === getCurrency())
-            setCurrency(opts[(idx + 1) % opts.length].value)
-            window.location.reload()
-          }}
-          sx={{
-            borderRadius: 2.5,
-            py: 1.2,
-            px: 1.5,
-            color: darkMode ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.5)',
-            transition: 'all 0.2s ease',
-            '&:hover': {
-              bgcolor: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(74,144,217,0.06)',
-              color: darkMode ? '#e2e8f0' : '#0f172a',
-              '& .MuiListItemIcon-root': {
-                color: darkMode ? '#e2e8f0' : '#0f172a',
-              },
-            },
-          }}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: 34,
-              color: darkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)',
-            }}
-          >
-            {getCurrency() === 'USD' ? <AttachMoneyIcon fontSize="small" /> : <CurrencyRupeeIcon fontSize="small" />}
-          </ListItemIcon>
-          <ListItemText
-            primary={getCurrency() === 'USD' ? 'USD ($)' : 'INR (₹)'}
             primaryTypographyProps={{ fontSize: '0.85rem', fontWeight: 500 }}
           />
         </ListItemButton>
