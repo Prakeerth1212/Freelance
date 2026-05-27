@@ -19,7 +19,7 @@ import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import LogoutIcon from '@mui/icons-material/Logout'
-import { getCurrency, setCurrency, Currency } from '../utils/currency'
+import { getCurrency, setCurrency } from '../utils/currency'
 
 const navItems = [
   { label: 'Dashboard', path: '/', icon: <DashboardIcon /> },
@@ -199,7 +199,7 @@ export default function Sidebar({ darkMode, onToggleTheme, onLogout }: SidebarPr
       <Box sx={{ px: 1.5, pb: 1.5 }}>
         <ListItemButton
           onClick={() => {
-            const next: Record<string, Currency> = { USD: 'INR', INR: 'USD' }
+            const next = { USD: 'INR' as const, INR: 'USD' as const }
             setCurrency(next[getCurrency()])
             window.location.reload()
           }}
