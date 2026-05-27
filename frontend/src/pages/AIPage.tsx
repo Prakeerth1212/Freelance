@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import {
   Box,
   Typography,
@@ -16,7 +16,6 @@ import PersonIcon from '@mui/icons-material/Person'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import { generate } from '../api/ai'
 import PageLayout from '../components/PageLayout'
-import GmailDraftButton from '../components/GmailDraftButton'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -222,96 +221,89 @@ export default function AIPage() {
           )}
 
           {messages.map((msg, i) => (
-            <React.Fragment key={i}>
-              <Fade in timeout={300}>
+            <Fade key={i} in timeout={300}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: 1.5,
+                  alignItems: 'flex-start',
+                  flexDirection: msg.role === 'user' ? 'row-reverse' : 'row',
+                }}
+              >
                 <Box
                   sx={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: '50%',
                     display: 'flex',
-                    gap: 1.5,
-                    alignItems: 'flex-start',
-                    flexDirection: msg.role === 'user' ? 'row-reverse' : 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    ...(msg.role === 'user'
+                      ? {
+                          background: 'linear-gradient(135deg, #4A90D9, #357abd)',
+                          color: '#fff',
+                          boxShadow: '0 4px 12px rgba(74,144,217,0.3)',
+                        }
+                      : {
+                          background: 'linear-gradient(135deg, rgba(74,144,217,0.1), rgba(74,144,217,0.05))',
+                          color: '#4A90D9',
+                        }),
                   }}
                 >
-                  <Box
-                    sx={{
-                      width: 34,
-                      height: 34,
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                      ...(msg.role === 'user'
-                        ? {
-                            background: 'linear-gradient(135deg, #4A90D9, #357abd)',
-                            color: '#fff',
-                            boxShadow: '0 4px 12px rgba(74,144,217,0.3)',
-                          }
-                        : {
-                            background: 'linear-gradient(135deg, rgba(74,144,217,0.1), rgba(74,144,217,0.05))',
-                            color: '#4A90D9',
-                          }),
-                    }}
-                  >
-                    {msg.role === 'user' ? (
-                      <PersonIcon fontSize="small" />
-                    ) : (
-                      <SmartToyIcon fontSize="small" />
-                    )}
-                  </Box>
-                  <Box
-                    sx={{
-                      maxWidth: '72%',
-                      px: 2.5,
-                      py: 1.5,
-                      borderRadius: 3,
-                      ...(msg.role === 'user'
-                        ? {
-                            borderBottomRightRadius: 4,
-                            background: 'linear-gradient(135deg, #4A90D9, #357abd)',
-                            color: '#fff',
-                            boxShadow: '0 4px 14px rgba(74,144,217,0.2)',
-                          }
-                        : {
-                            borderBottomLeftRadius: 4,
-                            bgcolor: (theme) =>
-                              theme.palette.mode === 'dark'
-                                ? 'rgba(255,255,255,0.04)'
-                                : 'rgba(0,0,0,0.03)',
-                            color: 'text.primary',
-                          }),
-                      whiteSpace: 'pre-wrap',
-                      wordBreak: 'break-word',
-                      fontSize: '0.9rem',
-                      lineHeight: 1.7,
-                    }}
-                  >
-                    {msg.role === 'user' && (
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          fontWeight: 700,
-                          display: 'block',
-                          mb: 0.5,
-                          opacity: 0.8,
-                          fontSize: '0.7rem',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em',
-                        }}
-                      >
-                        {username}
-                      </Typography>
-                    )}
-                    {msg.content}
-                  </Box>
+                  {msg.role === 'user' ? (
+                    <PersonIcon fontSize="small" />
+                  ) : (
+                    <SmartToyIcon fontSize="small" />
+                  )}
                 </Box>
-              </Fade>
-              {msg.role === 'assistant' && (
-                <Box sx={{ display: 'flex', gap: 1.5, pl: 6, mt: -1 }}>
-                  <GmailDraftButton subject="From FreelanceHub AI" body={msg.content} />
+                <Box
+                  sx={{
+                    maxWidth: '72%',
+                    px: 2.5,
+                    py: 1.5,
+                    borderRadius: 3,
+                    ...(msg.role === 'user'
+                      ? {
+                          borderBottomRightRadius: 4,
+                          background: 'linear-gradient(135deg, #4A90D9, #357abd)',
+                          color: '#fff',
+                          boxShadow: '0 4px 14px rgba(74,144,217,0.2)',
+                        }
+                      : {
+                          borderBottomLeftRadius: 4,
+                          bgcolor: (theme) =>
+                            theme.palette.mode === 'dark'
+                              ? 'rgba(255,255,255,0.04)'
+                              : 'rgba(0,0,0,0.03)',
+                          color: 'text.primary',
+                        }),
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    fontSize: '0.9rem',
+                    lineHeight: 1.7,
+                  }}
+                >
+                  {msg.role === 'user' && (
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 700,
+                        display: 'block',
+                        mb: 0.5,
+                        opacity: 0.8,
+                        fontSize: '0.7rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
+                      {username}
+                    </Typography>
+                  )}
+                  {msg.content}
                 </Box>
-              )}
-            </React.Fragment>
+              </Box>
+            </Fade>
           ))}
 
           {loading && <TypingIndicator />}
