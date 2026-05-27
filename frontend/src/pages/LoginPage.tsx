@@ -14,6 +14,39 @@ import {
 } from '@mui/material'
 import { login, register } from '../api/auth'
 
+function FloatingShapes() {
+  const shapes = [
+    { size: 300, top: '5%', left: '10%', delay: 0, color: 'rgba(74,144,217,0.05)', duration: 7 },
+    { size: 200, top: '60%', left: '80%', delay: -2, color: 'rgba(46,204,113,0.04)', duration: 9 },
+    { size: 250, top: '30%', left: '70%', delay: -4, color: 'rgba(139,92,246,0.03)', duration: 8 },
+    { size: 150, top: '70%', left: '15%', delay: -1, color: 'rgba(245,158,11,0.03)', duration: 6 },
+    { size: 100, top: '15%', left: '60%', delay: -3, color: 'rgba(74,144,217,0.04)', duration: 10 },
+  ]
+
+  return (
+    <>
+      {shapes.map((s, i) => (
+        <Box
+          key={i}
+          className="animate-float"
+          sx={{
+            position: 'absolute',
+            width: s.size,
+            height: s.size,
+            borderRadius: '50%',
+            background: `radial-gradient(circle, ${s.color} 0%, transparent 70%)`,
+            top: s.top,
+            left: s.left,
+            animationDelay: `${s.delay}s`,
+            animationDuration: `${s.duration}s`,
+            pointerEvents: 'none',
+          }}
+        />
+      ))}
+    </>
+  )
+}
+
 export default function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -55,87 +88,88 @@ export default function LoginPage() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: (theme) =>
-          theme.palette.mode === 'dark'
-            ? 'linear-gradient(135deg, #0f0f1a 0%, #1a1a3e 50%, #0f0f1a 100%)'
-            : 'linear-gradient(135deg, #f4f6f9 0%, #e0e7ff 50%, #f4f6f9 100%)',
         position: 'relative',
         overflow: 'hidden',
+        background: (theme) =>
+          theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, #08080f 0%, #0f0f24 30%, #0a0a18 70%, #08080f 100%)'
+            : 'linear-gradient(135deg, #f0f2f5 0%, #e8edf5 30%, #f0f2f5 70%, #f0f2f5 100%)',
       }}
     >
-      <Box
-        sx={{
-          position: 'absolute',
-          top: -100,
-          right: -100,
-          width: 400,
-          height: 400,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(74,144,217,0.12) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }}
-      />
-      <Box
-        sx={{
-          position: 'absolute',
-          bottom: -150,
-          left: -150,
-          width: 500,
-          height: 500,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(46,204,113,0.08) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }}
-      />
-      <Fade in={visible} timeout={500}>
+      <FloatingShapes />
+
+      <Fade in={visible} timeout={800}>
         <Card
           sx={{
-            width: 400,
-            p: 1,
-            borderRadius: 4,
+            width: 420,
             position: 'relative',
             zIndex: 1,
+            borderRadius: 4,
+            background: (theme) =>
+              theme.palette.mode === 'dark'
+                ? 'rgba(19, 19, 31, 0.8)'
+                : 'rgba(255, 255, 255, 0.85)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            border: (theme) =>
+              theme.palette.mode === 'dark'
+                ? '1px solid rgba(255,255,255,0.06)'
+                : '1px solid rgba(255,255,255,0.8)',
             boxShadow: (theme) =>
               theme.palette.mode === 'dark'
-                ? '0 20px 60px rgba(0,0,0,0.5)'
-                : '0 20px 60px rgba(0,0,0,0.1)',
+                ? '0 30px 80px rgba(0,0,0,0.6)'
+                : '0 30px 80px rgba(0,0,0,0.08)',
           }}
           elevation={0}
         >
-          <CardContent sx={{ px: 3, py: 3 }}>
-            <Box sx={{ textAlign: 'center', mb: 3 }}>
-              <Box
-                sx={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 2,
-                  bgcolor: '#4A90D9',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 700,
-                  color: '#fff',
-                  fontSize: 20,
-                  mb: 1.5,
-                }}
-              >
-                FH
+          <CardContent sx={{ px: 4, py: 4 }}>
+            <Fade in={visible} timeout={1000}>
+              <Box sx={{ textAlign: 'center', mb: 3.5 }}>
+                <Box
+                  sx={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: 3,
+                    background: 'linear-gradient(135deg, #4A90D9, #357abd)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 800,
+                    color: '#fff',
+                    fontSize: 22,
+                    mb: 2,
+                    boxShadow: '0 8px 24px rgba(74,144,217,0.3)',
+                  }}
+                >
+                  FH
+                </Box>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    fontWeight: 900,
+                    fontSize: '1.75rem',
+                    background: 'linear-gradient(135deg, #4A90D9, #6ba8e8)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    mb: 0.5,
+                  }}
+                >
+                  FreelanceHub
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                  {isSignUp ? 'Create your account to get started' : 'Welcome back! Sign in to continue'}
+                </Typography>
               </Box>
-              <Typography
-                variant="h5"
-                sx={{ fontWeight: 800, color: '#4A90D9', letterSpacing: '-0.02em' }}
-              >
-                FreelanceHub
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                {isSignUp ? 'Create your account' : 'Welcome back'}
-              </Typography>
-            </Box>
+            </Fade>
+
             {error && (
-              <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
-                {error}
-              </Alert>
+              <Fade in={!!error}>
+                <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2.5 }}>
+                  {error}
+                </Alert>
+              </Fade>
             )}
+
             <Box component="form" onSubmit={handleSubmit} noValidate>
               <TextField
                 fullWidth
@@ -160,24 +194,35 @@ export default function LoginPage() {
                 type="submit"
                 variant="contained"
                 disabled={loading}
-                sx={{ mt: 2.5, py: 1.3, fontSize: '0.95rem' }}
+                sx={{
+                  mt: 3,
+                  py: 1.4,
+                  fontSize: '0.95rem',
+                  fontWeight: 700,
+                  borderRadius: 2.5,
+                  background: 'linear-gradient(135deg, #4A90D9, #357abd)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #357abd, #4A90D9)',
+                  },
+                }}
               >
                 {loading ? (
                   <CircularProgress size={22} color="inherit" />
                 ) : isSignUp ? (
-                  'Sign Up'
+                  'Create Account'
                 ) : (
                   'Sign In'
                 )}
               </Button>
             </Box>
-            <Box sx={{ textAlign: 'center', mt: 2.5 }}>
+
+            <Box sx={{ textAlign: 'center', mt: 3 }}>
               <Link
                 component="button"
                 variant="body2"
                 onClick={() => { setIsSignUp(!isSignUp); setError('') }}
                 underline="hover"
-                sx={{ fontWeight: 500 }}
+                sx={{ fontWeight: 600, fontSize: '0.85rem' }}
               >
                 {isSignUp
                   ? 'Already have an account? Sign In'

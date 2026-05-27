@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 import { Box, Typography } from '@mui/material'
 
 interface PageLayoutProps {
-  title: string
+  title: ReactNode
   subtitle?: string
   action?: ReactNode
   children: ReactNode
@@ -10,23 +10,25 @@ interface PageLayoutProps {
 
 export default function PageLayout({ title, subtitle, action, children }: PageLayoutProps) {
   return (
-    <Box sx={{ p: 3, maxWidth: 1400, mx: 'auto' }}>
+    <Box sx={{ p: 3, maxWidth: 1400, mx: 'auto', position: 'relative', zIndex: 1 }}>
       <Box
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-start',
-          mb: 3,
+          mb: 3.5,
           flexWrap: 'wrap',
-          gap: 1,
+          gap: 1.5,
         }}
       >
         <Box>
-          <Typography variant="h5" sx={{ mb: subtitle ? 0.5 : 0 }}>
-            {title}
-          </Typography>
+          {typeof title === 'string' ? (
+            <Typography variant="h5">{title}</Typography>
+          ) : (
+            title
+          )}
           {subtitle && (
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontWeight: 500 }}>
               {subtitle}
             </Typography>
           )}

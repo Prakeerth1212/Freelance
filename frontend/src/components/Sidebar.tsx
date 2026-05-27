@@ -41,37 +41,41 @@ export default function Sidebar({ darkMode, onToggleTheme, onLogout }: SidebarPr
   return (
     <Box
       sx={{
-        width: 240,
+        width: 250,
         minHeight: '100vh',
-        bgcolor: darkMode ? '#12121e' : '#f8f9fc',
-        borderRight: darkMode ? '1px solid #1e1e30' : '1px solid #e5e7eb',
+        bgcolor: darkMode ? 'rgba(12, 12, 24, 0.85)' : 'rgba(248, 249, 252, 0.85)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
+        borderRight: darkMode ? '1px solid rgba(255,255,255,0.04)' : '1px solid rgba(0,0,0,0.04)',
         display: 'flex',
         flexDirection: 'column',
-        transition: 'background-color 0.3s ease',
+        transition: 'all 0.3s ease',
       }}
     >
       <Box
         sx={{
-          p: 2.5,
+          p: 3,
+          pb: 2.5,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 1,
+          gap: 1.5,
         }}
       >
         <Box
           sx={{
-            width: 32,
-            height: 32,
-            borderRadius: 1.5,
-            bgcolor: '#4A90D9',
+            width: 36,
+            height: 36,
+            borderRadius: 2.5,
+            background: 'linear-gradient(135deg, #4A90D9, #357abd)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontWeight: 700,
+            fontWeight: 800,
             color: '#fff',
             fontSize: 16,
             flexShrink: 0,
+            boxShadow: '0 4px 12px rgba(74,144,217,0.3)',
           }}
         >
           FH
@@ -79,19 +83,21 @@ export default function Sidebar({ darkMode, onToggleTheme, onLogout }: SidebarPr
         <Typography
           variant="h6"
           sx={{
-            color: '#4A90D9',
+            background: 'linear-gradient(135deg, #4A90D9, #6ba8e8)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
             fontWeight: 800,
-            letterSpacing: '0.02em',
-            fontSize: '1.15rem',
+            letterSpacing: '-0.02em',
+            fontSize: '1.2rem',
           }}
         >
           FreelanceHub
         </Typography>
       </Box>
 
-      <Divider sx={{ mx: 1.5 }} />
+      <Divider sx={{ mx: 2, opacity: 0.4 }} />
 
-      <List sx={{ flex: 1, px: 1.5, pt: 1.5 }}>
+      <List sx={{ flex: 1, px: 1.5, pt: 2 }}>
         {navItems.map((item) => {
           const active = location.pathname === item.path
           return (
@@ -100,36 +106,43 @@ export default function Sidebar({ darkMode, onToggleTheme, onLogout }: SidebarPr
                 selected={active}
                 onClick={() => navigate(item.path)}
                 sx={{
-                  borderRadius: 2,
-                  mb: 0.3,
-                  py: 1.2,
+                  borderRadius: 2.5,
+                  mb: 0.5,
+                  py: 1.3,
                   px: 1.5,
-                  color: active ? '#fff' : darkMode ? '#9ca3af' : '#6b7280',
-                  transition: 'all 0.2s ease',
-                  '&.Mui-selected': {
-                    bgcolor: '#4A90D9',
-                    color: '#fff',
-                    '&:hover': { bgcolor: '#3a7bc8' },
-                    '& .MuiListItemIcon-root': { color: '#fff' },
-                  },
-                  '&:hover': {
-                    bgcolor: active
-                      ? '#3a7bc8'
-                      : darkMode
-                        ? 'rgba(255,255,255,0.06)'
-                        : 'rgba(0,0,0,0.04)',
-                    color: active ? '#fff' : darkMode ? '#e8e8f0' : '#1a1a2e',
-                    '& .MuiListItemIcon-root': {
-                      color: active ? '#fff' : darkMode ? '#e8e8f0' : '#1a1a2e',
-                    },
-                  },
+                  transition: 'all 0.25s ease',
+                  ...(active
+                    ? {
+                        background: 'linear-gradient(135deg, #4A90D9, #357abd)',
+                        color: '#fff',
+                        boxShadow: '0 4px 14px rgba(74,144,217,0.3)',
+                        '&:hover': {
+                          background: 'linear-gradient(135deg, #357abd, #4A90D9)',
+                          boxShadow: '0 6px 20px rgba(74,144,217,0.4)',
+                        },
+                        '& .MuiListItemIcon-root': { color: '#fff' },
+                      }
+                    : {
+                        color: darkMode ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.5)',
+                        '&:hover': {
+                          bgcolor: darkMode
+                            ? 'rgba(255,255,255,0.05)'
+                            : 'rgba(74,144,217,0.06)',
+                          color: darkMode ? '#e2e8f0' : '#0f172a',
+                          '& .MuiListItemIcon-root': {
+                            color: darkMode ? '#e2e8f0' : '#0f172a',
+                          },
+                        },
+                      }),
                 }}
               >
                 <ListItemIcon
                   sx={{
                     minWidth: 34,
-                    color: active ? '#fff' : darkMode ? '#9ca3af' : '#6b7280',
-                    transition: 'color 0.2s ease',
+                    transition: 'color 0.25s ease',
+                    ...(active
+                      ? { color: '#fff' }
+                      : { color: darkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)' }),
                   }}
                 >
                   {item.icon}
@@ -137,8 +150,8 @@ export default function Sidebar({ darkMode, onToggleTheme, onLogout }: SidebarPr
                 <ListItemText
                   primary={item.label}
                   primaryTypographyProps={{
-                    fontSize: '0.9rem',
-                    fontWeight: active ? 600 : 500,
+                    fontSize: '0.85rem',
+                    fontWeight: active ? 700 : 500,
                   }}
                 />
               </ListItemButton>
@@ -147,27 +160,30 @@ export default function Sidebar({ darkMode, onToggleTheme, onLogout }: SidebarPr
         })}
       </List>
 
-      <Divider sx={{ mx: 1.5 }} />
+      <Divider sx={{ mx: 2, opacity: 0.4 }} />
 
       <Box sx={{ px: 1.5, py: 1.5 }}>
         <ListItemButton
           onClick={onToggleTheme}
           sx={{
-            borderRadius: 2,
-            py: 1,
+            borderRadius: 2.5,
+            py: 1.2,
             px: 1.5,
-            color: darkMode ? '#9ca3af' : '#6b7280',
+            color: darkMode ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.5)',
             transition: 'all 0.2s ease',
             '&:hover': {
-              bgcolor: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
-              color: darkMode ? '#e8e8f0' : '#1a1a2e',
+              bgcolor: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(74,144,217,0.06)',
+              color: darkMode ? '#e2e8f0' : '#0f172a',
+              '& .MuiListItemIcon-root': {
+                color: darkMode ? '#e2e8f0' : '#0f172a',
+              },
             },
           }}
         >
           <ListItemIcon
             sx={{
               minWidth: 34,
-              color: darkMode ? '#9ca3af' : '#6b7280',
+              color: darkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)',
             }}
           >
             {darkMode ? <LightModeIcon fontSize="small" /> : <DarkModeIcon fontSize="small" />}
@@ -181,21 +197,21 @@ export default function Sidebar({ darkMode, onToggleTheme, onLogout }: SidebarPr
 
       <Box
         sx={{
-          px: 1.5,
-          py: 1.5,
+          px: 2,
+          py: 2,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderTop: darkMode ? '1px solid #1e1e30' : '1px solid #e5e7eb',
+          borderTop: darkMode ? '1px solid rgba(255,255,255,0.04)' : '1px solid rgba(0,0,0,0.04)',
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
           <Box
             sx={{
-              width: 28,
-              height: 28,
-              borderRadius: '50%',
-              bgcolor: '#4A90D9',
+              width: 30,
+              height: 30,
+              borderRadius: 2,
+              background: 'linear-gradient(135deg, #4A90D9, #357abd)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -208,29 +224,37 @@ export default function Sidebar({ darkMode, onToggleTheme, onLogout }: SidebarPr
             {username.charAt(0).toUpperCase()}
           </Box>
           <Typography
-            variant="caption"
+            variant="body2"
             sx={{
-              color: darkMode ? '#9ca3af' : '#6b7280',
-              fontWeight: 500,
+              color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)',
+              fontWeight: 600,
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
+              fontSize: '0.8rem',
             }}
           >
             {username}
           </Typography>
         </Box>
-        <IconButton
-          size="small"
-          onClick={() => { onLogout(); navigate('/login') }}
-          sx={{
-            color: darkMode ? '#9ca3af' : '#6b7280',
-            '&:hover': { color: '#ef4444', bgcolor: 'rgba(239,68,68,0.08)' },
-            transition: 'color 0.2s ease',
-          }}
-        >
-          <LogoutIcon fontSize="small" />
-        </IconButton>
+        <Tooltip title="Logout" arrow>
+          <IconButton
+            size="small"
+            onClick={() => { onLogout(); navigate('/login') }}
+            sx={{
+              color: darkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)',
+              borderRadius: 1.5,
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                color: '#ef4444',
+                bgcolor: 'rgba(239,68,68,0.08)',
+                transform: 'scale(1.1)',
+              },
+            }}
+          >
+            <LogoutIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
       </Box>
     </Box>
   )

@@ -20,7 +20,7 @@ import {
   Chip,
   Skeleton,
 } from '@mui/material'
-import { Receipt, CheckCircle, FileDownload } from '@mui/icons-material'
+import { Receipt, CheckCircle, FileDownload, Description } from '@mui/icons-material'
 import { getProjects, Project } from '../api/projects'
 import {
   getInvoicesByProjectId,
@@ -31,6 +31,12 @@ import {
   Invoice,
 } from '../api/invoices'
 import PageLayout from '../components/PageLayout'
+
+const statusStyles: Record<string, { bg: string; color: string; label: string }> = {
+  Paid: { bg: 'rgba(46,204,113,0.12)', color: '#2ecc71', label: 'Paid' },
+  Unpaid: { bg: 'rgba(245,158,11,0.12)', color: '#f59e0b', label: 'Unpaid' },
+  Overdue: { bg: 'rgba(239,68,68,0.12)', color: '#ef4444', label: 'Overdue' },
+}
 
 export default function InvoicesPage() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -147,7 +153,12 @@ export default function InvoicesPage() {
 
   return (
     <PageLayout
-      title="Invoices"
+      title={
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Description sx={{ color: '#4A90D9' }} />
+          <span>Invoices</span>
+        </Box>
+      }
       subtitle="Generate and manage invoices"
     >
       <Paper
@@ -155,8 +166,13 @@ export default function InvoicesPage() {
         sx={{
           p: 2.5,
           mb: 3,
-          border: (theme) => `1px solid ${theme.palette.divider}`,
           borderRadius: 3,
+          border: (theme) => `1px solid ${theme.palette.divider}`,
+          transition: 'box-shadow 0.3s ease',
+          '&:hover': {
+            boxShadow: (t) =>
+              t.palette.mode === 'dark' ? '0 8px 30px rgba(0,0,0,0.3)' : '0 8px 30px rgba(0,0,0,0.06)',
+          },
         }}
       >
         <Grid container spacing={2} alignItems="center">
@@ -175,23 +191,23 @@ export default function InvoicesPage() {
             </FormControl>
           </Grid>
           <Grid item xs={6} sm={3}>
-            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-              Available to Invoice
+            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Available
             </Typography>
             {unbilled === null ? (
-              <Skeleton variant="text" width={80} />
+              <Skeleton variant="text" width={80} height={32} />
             ) : (
-              <Typography variant="h6" sx={{ fontWeight: 700, color: unbilled > 0 ? '#27ae60' : 'text.secondary' }}>
+              <Typography variant="h5" sx={{ fontWeight: 800, color: unbilled > 0 ? '#2ecc71' : 'text.secondary' }}>
                 ${unbilled.toFixed(2)}
               </Typography>
             )}
           </Grid>
           {selectedProject && (
             <Grid item xs={6} sm={3}>
-              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 Rate
               </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              <Typography variant="h5" sx={{ fontWeight: 800 }}>
                 ${selectedProject.hourlyRate.toFixed(2)}/hr
               </Typography>
             </Grid>
@@ -204,18 +220,26 @@ export default function InvoicesPage() {
         sx={{
           p: 2.5,
           mb: 3,
-          border: (theme) => `1px solid ${theme.palette.divider}`,
           borderRadius: 3,
+          border: (theme) => `1px solid ${theme.palette.divider}`,
+          transition: 'box-shadow 0.3s ease',
+          '&:hover': {
+            boxShadow: (t) =>
+              t.palette.mode === 'dark' ? '0 8px 30px rgba(0,0,0,0.3)' : '0 8px 30px rgba(0,0,0,0.06)',
+          },
         }}
       >
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          Invoices
-          {selectedProject && (
-            <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-              — {selectedProject.name}
-            </Typography>
-          )}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+          <Box sx={{ width: 8, height: 8, borderRadius: '50%', background: 'linear-gradient(135deg, #4A90D9, #357abd)' }} />
+          <Typography variant="h6">
+            Invoices
+            {selectedProject && (
+              <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1, fontWeight: 400 }}>
+                — {selectedProject.name}
+              </Typography>
+            )}
+          </Typography>
+        </Box>
         <TableContainer>
           <Table size="small">
             <TableHead>
@@ -233,46 +257,53 @@ export default function InvoicesPage() {
                 ? Array.from({ length: 3 }).map((_, i) => (
                     <TableRow key={i}>
                       {Array.from({ length: 6 }).map((_, j) => (
-                        <TableCell key={j}>
-                          <Skeleton variant="text" width={j === 1 ? 140 : 70} />
-                        </TableCell>
+                        <TableCell key={j}><Skeleton variant="text" width={j === 1 ? 140 : 70} /></TableCell>
                       ))}
                     </TableRow>
                   ))
-                : invoices.map((inv) => (
-                    <TableRow
-                      key={inv.id}
-                      hover
-                      selected={selectedInvoiceId === inv.id}
-                      onClick={() => setSelectedInvoiceId(inv.id)}
-                      sx={{
-                        cursor: 'pointer',
-                        '&.Mui-selected': {
-                          bgcolor: (theme) =>
-                            theme.palette.mode === 'dark'
-                              ? 'rgba(74,144,217,0.15)'
-                              : 'rgba(74,144,217,0.08)',
-                        },
-                      }}
-                    >
-                      <TableCell sx={{ fontWeight: 600 }}>{inv.id}</TableCell>
-                      <TableCell>{inv.invoiceNumber}</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 600 }}>
-                        ${inv.amount.toFixed(2)}
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={inv.status}
-                          size="small"
-                          color={inv.status === 'Paid' ? 'success' : inv.status === 'Overdue' ? 'error' : 'warning'}
-                          variant="outlined"
-                          sx={{ fontWeight: 600 }}
-                        />
-                      </TableCell>
-                      <TableCell>{inv.issuedDate}</TableCell>
-                      <TableCell>{inv.dueDate}</TableCell>
-                    </TableRow>
-                  ))}
+                : invoices.map((inv) => {
+                    const st = statusStyles[inv.status] || statusStyles.Unpaid
+                    return (
+                      <TableRow
+                        key={inv.id}
+                        hover
+                        selected={selectedInvoiceId === inv.id}
+                        onClick={() => setSelectedInvoiceId(inv.id)}
+                        sx={{
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease',
+                          '&.Mui-selected': {
+                            bgcolor: (t) =>
+                              t.palette.mode === 'dark' ? 'rgba(74,144,217,0.12)' : 'rgba(74,144,217,0.06)',
+                          },
+                        }}
+                      >
+                        <TableCell>
+                          <Typography variant="caption" sx={{ fontWeight: 700, fontFamily: 'monospace', color: 'text.secondary' }}>
+                            #{inv.id}
+                          </Typography>
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>{inv.invoiceNumber}</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          ${inv.amount.toFixed(2)}
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={st.label}
+                            size="small"
+                            sx={{
+                              fontWeight: 700,
+                              fontSize: '0.7rem',
+                              bgcolor: st.bg,
+                              color: st.color,
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell>{inv.issuedDate}</TableCell>
+                        <TableCell>{inv.dueDate}</TableCell>
+                      </TableRow>
+                    )
+                  })}
               {!loadingInvoices && invoices.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>
@@ -291,6 +322,12 @@ export default function InvoicesPage() {
           onClick={handleGenerate}
           startIcon={<Receipt />}
           disabled={selectedProjectId === '' || (unbilled !== null && unbilled <= 0)}
+          sx={{
+            borderRadius: 2.5,
+            background: 'linear-gradient(135deg, #4A90D9, #357abd)',
+            '&:hover': { background: 'linear-gradient(135deg, #357abd, #4A90D9)' },
+            '&.Mui-disabled': { background: 'rgba(255,255,255,0.04)' },
+          }}
         >
           Generate Invoice
         </Button>
@@ -300,6 +337,7 @@ export default function InvoicesPage() {
           onClick={handleTogglePaid}
           startIcon={<CheckCircle />}
           disabled={selectedInvoiceId === null}
+          sx={{ borderRadius: 2.5 }}
         >
           Mark as Paid
         </Button>
@@ -308,6 +346,7 @@ export default function InvoicesPage() {
           onClick={handleExportPdf}
           startIcon={<FileDownload />}
           disabled={selectedInvoiceId === null}
+          sx={{ borderRadius: 2.5 }}
         >
           Export PDF
         </Button>
@@ -315,7 +354,9 @@ export default function InvoicesPage() {
 
       {snackbar && (
         <Snackbar open autoHideDuration={3000} onClose={() => setSnackbar(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-          <Alert severity={snackbar.severity} variant="filled" sx={{ borderRadius: 2 }}>{snackbar.message}</Alert>
+          <Alert severity={snackbar.severity} variant="filled" sx={{ borderRadius: 2.5, fontWeight: 600 }}>
+            {snackbar.message}
+          </Alert>
         </Snackbar>
       )}
     </PageLayout>

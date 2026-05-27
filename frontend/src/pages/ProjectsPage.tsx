@@ -19,12 +19,19 @@ import {
   Alert,
   Snackbar,
   Skeleton,
+  Chip,
 } from '@mui/material'
-import { Add, WorkHistory } from '@mui/icons-material'
+import { Add, WorkHistory, Work } from '@mui/icons-material'
 import { getClients, Client } from '../api/clients'
 import { getProjectsByClientId, createProject, Project } from '../api/projects'
 import { getTimeLogsByProjectId, createTimeLog, TimeLog } from '../api/timeLogs'
 import PageLayout from '../components/PageLayout'
+
+const statusColors: Record<string, { bg: string; color: string }> = {
+  Active: { bg: 'rgba(46,204,113,0.12)', color: '#2ecc71' },
+  Completed: { bg: 'rgba(74,144,217,0.12)', color: '#4A90D9' },
+  'On Hold': { bg: 'rgba(245,158,11,0.12)', color: '#f59e0b' },
+}
 
 export default function ProjectsPage() {
   const [clients, setClients] = useState<Client[]>([])
@@ -152,7 +159,12 @@ export default function ProjectsPage() {
 
   return (
     <PageLayout
-      title="Projects & Time"
+      title={
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Work sx={{ color: '#4A90D9' }} />
+          <span>Projects & Time</span>
+        </Box>
+      }
       subtitle="Track projects and log your work hours"
     >
       <Paper
@@ -160,8 +172,13 @@ export default function ProjectsPage() {
         sx={{
           p: 2.5,
           mb: 3,
-          border: (theme) => `1px solid ${theme.palette.divider}`,
           borderRadius: 3,
+          border: (theme) => `1px solid ${theme.palette.divider}`,
+          transition: 'box-shadow 0.3s ease',
+          '&:hover': {
+            boxShadow: (t) =>
+              t.palette.mode === 'dark' ? '0 8px 30px rgba(0,0,0,0.3)' : '0 8px 30px rgba(0,0,0,0.06)',
+          },
         }}
       >
         <Grid container spacing={2} alignItems="center">
@@ -180,18 +197,18 @@ export default function ProjectsPage() {
             </FormControl>
           </Grid>
           <Grid item xs={6} sm={4} md={3}>
-            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Total Hours
             </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              {totalHours.toFixed(2)}
+            <Typography variant="h5" sx={{ fontWeight: 800 }}>
+              {totalHours.toFixed(2)}h
             </Typography>
           </Grid>
           <Grid item xs={6} sm={4} md={3}>
-            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Earnings
             </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: '#27ae60' }}>
+            <Typography variant="h5" sx={{ fontWeight: 800, background: 'linear-gradient(135deg, #2ecc71, #27ae60)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               ${totalEarnings.toFixed(2)}
             </Typography>
           </Grid>
@@ -204,18 +221,26 @@ export default function ProjectsPage() {
             elevation={0}
             sx={{
               p: 2.5,
-              border: (theme) => `1px solid ${theme.palette.divider}`,
               borderRadius: 3,
+              border: (theme) => `1px solid ${theme.palette.divider}`,
+              transition: 'box-shadow 0.3s ease',
+              '&:hover': {
+                boxShadow: (t) =>
+                  t.palette.mode === 'dark' ? '0 8px 30px rgba(0,0,0,0.3)' : '0 8px 30px rgba(0,0,0,0.06)',
+              },
             }}
           >
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Projects
-              {selectedClient && (
-                <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-                  — {selectedClient.name}
-                </Typography>
-              )}
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+              <Box sx={{ width: 8, height: 8, borderRadius: '50%', background: 'linear-gradient(135deg, #4A90D9, #357abd)' }} />
+              <Typography variant="h6">
+                Projects
+                {selectedClient && (
+                  <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1, fontWeight: 400 }}>
+                    — {selectedClient.name}
+                  </Typography>
+                )}
+              </Typography>
+            </Box>
             <TableContainer>
               <Table size="small">
                 <TableHead>
@@ -231,9 +256,7 @@ export default function ProjectsPage() {
                     ? Array.from({ length: 3 }).map((_, i) => (
                         <TableRow key={i}>
                           {Array.from({ length: 4 }).map((_, j) => (
-                            <TableCell key={j}>
-                              <Skeleton variant="text" width={j === 2 ? 60 : 80} />
-                            </TableCell>
+                            <TableCell key={j}><Skeleton variant="text" width={j === 2 ? 60 : 80} /></TableCell>
                           ))}
                         </TableRow>
                       ))
@@ -245,41 +268,33 @@ export default function ProjectsPage() {
                           onClick={() => setSelectedProjectId(p.id)}
                           sx={{
                             cursor: 'pointer',
+                            transition: 'all 0.15s ease',
                             '&.Mui-selected': {
-                              bgcolor: (theme) =>
-                                theme.palette.mode === 'dark'
-                                  ? 'rgba(74,144,217,0.15)'
-                                  : 'rgba(74,144,217,0.08)',
+                              bgcolor: (t) =>
+                                t.palette.mode === 'dark' ? 'rgba(74,144,217,0.12)' : 'rgba(74,144,217,0.06)',
                             },
                           }}
                         >
-                          <TableCell sx={{ fontWeight: 600 }}>{p.id}</TableCell>
-                          <TableCell>{p.name}</TableCell>
-                          <TableCell align="right">${p.hourlyRate.toFixed(2)}</TableCell>
                           <TableCell>
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                px: 1,
-                                py: 0.3,
-                                borderRadius: 1,
-                                bgcolor:
-                                  p.status === 'Active'
-                                    ? 'rgba(46,204,113,0.12)'
-                                    : p.status === 'Completed'
-                                      ? 'rgba(74,144,217,0.12)'
-                                      : 'rgba(243,156,18,0.12)',
-                                color:
-                                  p.status === 'Active'
-                                    ? '#2ecc71'
-                                    : p.status === 'Completed'
-                                      ? '#4A90D9'
-                                      : '#f39c12',
-                                fontWeight: 600,
-                              }}
-                            >
-                              {p.status}
+                            <Typography variant="caption" sx={{ fontWeight: 700, fontFamily: 'monospace', color: 'text.secondary' }}>
+                              #{p.id}
                             </Typography>
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 600 }}>{p.name}</TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 700 }}>
+                            ${p.hourlyRate.toFixed(2)}
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              label={p.status}
+                              size="small"
+                              sx={{
+                                fontWeight: 700,
+                                fontSize: '0.7rem',
+                                bgcolor: statusColors[p.status]?.bg,
+                                color: statusColors[p.status]?.color,
+                              }}
+                            />
                           </TableCell>
                         </TableRow>
                       ))}
@@ -305,7 +320,13 @@ export default function ProjectsPage() {
                   <MenuItem value="On Hold">On Hold</MenuItem>
                 </Select>
               </FormControl>
-              <Button variant="contained" size="small" onClick={handleAddProject} startIcon={<Add />}>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={handleAddProject}
+                startIcon={<Add />}
+                sx={{ borderRadius: 2.5 }}
+              >
                 Add
               </Button>
             </Box>
@@ -317,18 +338,26 @@ export default function ProjectsPage() {
             elevation={0}
             sx={{
               p: 2.5,
-              border: (theme) => `1px solid ${theme.palette.divider}`,
               borderRadius: 3,
+              border: (theme) => `1px solid ${theme.palette.divider}`,
+              transition: 'box-shadow 0.3s ease',
+              '&:hover': {
+                boxShadow: (t) =>
+                  t.palette.mode === 'dark' ? '0 8px 30px rgba(0,0,0,0.3)' : '0 8px 30px rgba(0,0,0,0.06)',
+              },
             }}
           >
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Time Logs
-              {selectedProjectId && (
-                <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-                  — {projects.find((p) => p.id === selectedProjectId)?.name}
-                </Typography>
-              )}
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+              <Box sx={{ width: 8, height: 8, borderRadius: '50%', background: 'linear-gradient(135deg, #2ecc71, #27ae60)' }} />
+              <Typography variant="h6">
+                Time Logs
+                {selectedProjectId && (
+                  <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1, fontWeight: 400 }}>
+                    — {projects.find((p) => p.id === selectedProjectId)?.name}
+                  </Typography>
+                )}
+              </Typography>
+            </Box>
             <TableContainer>
               <Table size="small">
                 <TableHead>
@@ -344,19 +373,21 @@ export default function ProjectsPage() {
                     ? Array.from({ length: 3 }).map((_, i) => (
                         <TableRow key={i}>
                           {Array.from({ length: 4 }).map((_, j) => (
-                            <TableCell key={j}>
-                              <Skeleton variant="text" width={j === 3 ? 120 : 60} />
-                            </TableCell>
+                            <TableCell key={j}><Skeleton variant="text" width={j === 3 ? 120 : 60} /></TableCell>
                           ))}
                         </TableRow>
                       ))
                     : timeLogs.map((t) => (
-                        <TableRow key={t.id} hover>
-                          <TableCell sx={{ fontWeight: 600 }}>{t.id}</TableCell>
+                        <TableRow key={t.id} hover sx={{ transition: 'background-color 0.15s ease' }}>
+                          <TableCell>
+                            <Typography variant="caption" sx={{ fontWeight: 700, fontFamily: 'monospace', color: 'text.secondary' }}>
+                              #{t.id}
+                            </Typography>
+                          </TableCell>
                           <TableCell>{t.date}</TableCell>
-                          <TableCell align="right" sx={{ fontWeight: 600 }}>{t.hours.toFixed(2)}</TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 700 }}>{t.hours.toFixed(2)}h</TableCell>
                           <TableCell sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {t.description || '-'}
+                            {t.description || <Typography variant="body2" color="text.disabled">—</Typography>}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -372,19 +403,17 @@ export default function ProjectsPage() {
             </TableContainer>
 
             <Box sx={{ mt: 2.5, display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
-              <TextField
-                size="small"
-                label="Date"
-                type="date"
-                value={logForm.date}
-                onChange={(e) => setLogForm({ ...logForm, date: e.target.value })}
-                InputLabelProps={{ shrink: true }}
-                sx={{ width: 140 }}
-              />
+              <TextField size="small" label="Date" type="date" value={logForm.date} onChange={(e) => setLogForm({ ...logForm, date: e.target.value })} InputLabelProps={{ shrink: true }} sx={{ width: 140 }} />
               <TextField size="small" label="Hours" type="number" value={logForm.hours} onChange={(e) => setLogForm({ ...logForm, hours: e.target.value })} sx={{ width: 80 }} inputProps={{ step: 0.25, min: 0, max: 24 }} />
               <TextField size="small" label="Description" value={logForm.description} onChange={(e) => setLogForm({ ...logForm, description: e.target.value })} sx={{ flex: 1, minWidth: 120 }} />
-              <Button variant="contained" size="small" onClick={handleAddLog} startIcon={<WorkHistory />}>
-                Add Log
+              <Button
+                variant="contained"
+                size="small"
+                onClick={handleAddLog}
+                startIcon={<WorkHistory />}
+                sx={{ borderRadius: 2.5 }}
+              >
+                Log
               </Button>
             </Box>
           </Paper>
@@ -393,7 +422,9 @@ export default function ProjectsPage() {
 
       {snackbar && (
         <Snackbar open autoHideDuration={3000} onClose={() => setSnackbar(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-          <Alert severity={snackbar.severity} variant="filled" sx={{ borderRadius: 2 }}>{snackbar.message}</Alert>
+          <Alert severity={snackbar.severity} variant="filled" sx={{ borderRadius: 2.5, fontWeight: 600 }}>
+            {snackbar.message}
+          </Alert>
         </Snackbar>
       )}
     </PageLayout>
