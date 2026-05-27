@@ -18,7 +18,9 @@ import {
   Alert,
   Snackbar,
   Chip,
+  Skeleton,
 } from '@mui/material'
+import { Receipt, CheckCircle, FileDownload } from '@mui/icons-material'
 import { getProjects, Project } from '../api/projects'
 import {
   getInvoicesByProjectId,
@@ -28,12 +30,14 @@ import {
   getUnbilledAmount,
   Invoice,
 } from '../api/invoices'
+import PageLayout from '../components/PageLayout'
 
 export default function InvoicesPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [selectedProjectId, setSelectedProjectId] = useState<number | ''>('')
   const [invoices, setInvoices] = useState<Invoice[]>([])
-  const [unbilled, setUnbilled] = useState(0)
+  const [loadingInvoices, setLoadingInvoices] = useState(false)
+  const [unbilled, setUnbilled] = useState<number | null>(null)
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<number | null>(null)
   const [snackbar, setSnackbar] = useState<{ message: string; severity: 'success' | 'error' } | null>(null)
 
@@ -44,7 +48,7 @@ export default function InvoicesPage() {
   useEffect(() => {
     if (selectedProjectId === '') {
       setInvoices([])
-      setUnbilled(0)
+      setUnbilled(null)
       return
     }
     loadInvoices(selectedProjectId as number)
@@ -52,11 +56,14 @@ export default function InvoicesPage() {
   }, [selectedProjectId])
 
   const loadInvoices = async (projectId: number) => {
+    setLoadingInvoices(true)
     try {
       const data = await getInvoicesByProjectId(projectId)
       setInvoices(data)
     } catch {
       setSnackbar({ message: 'Error loading invoices', severity: 'error' })
+    } finally {
+      setLoadingInvoices(false)
     }
   }
 
@@ -74,7 +81,7 @@ export default function InvoicesPage() {
       setSnackbar({ message: 'Select a project first', severity: 'error' })
       return
     }
-    if (unbilled <= 0) {
+    if (unbilled !== null && unbilled <= 0) {
       setSnackbar({ message: 'No unbilled hours to invoice', severity: 'error' })
       return
     }
@@ -87,7 +94,7 @@ export default function InvoicesPage() {
       await createInvoice({
         projectId: project.id,
         invoiceNumber,
-        amount: unbilled,
+        amount: unbilled!,
         status: 'Unpaid',
         issuedDate: today,
         dueDate,
@@ -136,11 +143,22 @@ export default function InvoicesPage() {
     }
   }
 
-  return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>Invoices</Typography>
+  const selectedProject = selectedProjectId !== '' ? projects.find((p) => p.id === selectedProjectId) : null
 
-      <Paper sx={{ p: 2, mb: 3 }}>
+  return (
+    <PageLayout
+      title="Invoices"
+      subtitle="Generate and manage invoices"
+    >
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2.5,
+          mb: 3,
+          border: (theme) => `1px solid ${theme.palette.divider}`,
+          borderRadius: 3,
+        }}
+      >
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} sm={4}>
             <FormControl fullWidth size="small">
@@ -157,16 +175,47 @@ export default function InvoicesPage() {
             </FormControl>
           </Grid>
           <Grid item xs={6} sm={3}>
-            <Typography variant="body2" color="text.secondary">Available to Invoice</Typography>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: unbilled > 0 ? '#27ae60' : 'text.secondary' }}>
-              ${unbilled.toFixed(2)}
+            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+              Available to Invoice
             </Typography>
+            {unbilled === null ? (
+              <Skeleton variant="text" width={80} />
+            ) : (
+              <Typography variant="h6" sx={{ fontWeight: 700, color: unbilled > 0 ? '#27ae60' : 'text.secondary' }}>
+                ${unbilled.toFixed(2)}
+              </Typography>
+            )}
           </Grid>
+          {selectedProject && (
+            <Grid item xs={6} sm={3}>
+              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                Rate
+              </Typography>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                ${selectedProject.hourlyRate.toFixed(2)}/hr
+              </Typography>
+            </Grid>
+          )}
         </Grid>
       </Paper>
 
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>Invoices</Typography>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2.5,
+          mb: 3,
+          border: (theme) => `1px solid ${theme.palette.divider}`,
+          borderRadius: 3,
+        }}
+      >
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Invoices
+          {selectedProject && (
+            <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+              — {selectedProject.name}
+            </Typography>
+          )}
+        </Typography>
         <TableContainer>
           <Table size="small">
             <TableHead>
@@ -180,31 +229,55 @@ export default function InvoicesPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {invoices.map((inv) => (
-                <TableRow
-                  key={inv.id}
-                  hover
-                  selected={selectedInvoiceId === inv.id}
-                  onClick={() => setSelectedInvoiceId(inv.id)}
-                  sx={{ cursor: 'pointer' }}
-                >
-                  <TableCell>{inv.id}</TableCell>
-                  <TableCell>{inv.invoiceNumber}</TableCell>
-                  <TableCell align="right">${inv.amount.toFixed(2)}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label={inv.status}
-                      size="small"
-                      color={inv.status === 'Paid' ? 'success' : inv.status === 'Overdue' ? 'error' : 'warning'}
-                    />
-                  </TableCell>
-                  <TableCell>{inv.issuedDate}</TableCell>
-                  <TableCell>{inv.dueDate}</TableCell>
-                </TableRow>
-              ))}
-              {invoices.length === 0 && (
+              {loadingInvoices
+                ? Array.from({ length: 3 }).map((_, i) => (
+                    <TableRow key={i}>
+                      {Array.from({ length: 6 }).map((_, j) => (
+                        <TableCell key={j}>
+                          <Skeleton variant="text" width={j === 1 ? 140 : 70} />
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                : invoices.map((inv) => (
+                    <TableRow
+                      key={inv.id}
+                      hover
+                      selected={selectedInvoiceId === inv.id}
+                      onClick={() => setSelectedInvoiceId(inv.id)}
+                      sx={{
+                        cursor: 'pointer',
+                        '&.Mui-selected': {
+                          bgcolor: (theme) =>
+                            theme.palette.mode === 'dark'
+                              ? 'rgba(74,144,217,0.15)'
+                              : 'rgba(74,144,217,0.08)',
+                        },
+                      }}
+                    >
+                      <TableCell sx={{ fontWeight: 600 }}>{inv.id}</TableCell>
+                      <TableCell>{inv.invoiceNumber}</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 600 }}>
+                        ${inv.amount.toFixed(2)}
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={inv.status}
+                          size="small"
+                          color={inv.status === 'Paid' ? 'success' : inv.status === 'Overdue' ? 'error' : 'warning'}
+                          variant="outlined"
+                          sx={{ fontWeight: 600 }}
+                        />
+                      </TableCell>
+                      <TableCell>{inv.issuedDate}</TableCell>
+                      <TableCell>{inv.dueDate}</TableCell>
+                    </TableRow>
+                  ))}
+              {!loadingInvoices && invoices.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} align="center">No invoices</TableCell>
+                  <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                    {selectedProjectId !== '' ? 'No invoices for this project' : 'Select a project above'}
+                  </TableCell>
                 </TableRow>
               )}
             </TableBody>
@@ -212,17 +285,39 @@ export default function InvoicesPage() {
         </TableContainer>
       </Paper>
 
-      <Box sx={{ display: 'flex', gap: 2 }}>
-        <Button variant="contained" color="primary" onClick={handleGenerate}>Generate Invoice</Button>
-        <Button variant="outlined" color="secondary" onClick={handleTogglePaid}>Mark as Paid</Button>
-        <Button variant="outlined" onClick={handleExportPdf}>Export PDF</Button>
+      <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+        <Button
+          variant="contained"
+          onClick={handleGenerate}
+          startIcon={<Receipt />}
+          disabled={selectedProjectId === '' || (unbilled !== null && unbilled <= 0)}
+        >
+          Generate Invoice
+        </Button>
+        <Button
+          variant="outlined"
+          color="success"
+          onClick={handleTogglePaid}
+          startIcon={<CheckCircle />}
+          disabled={selectedInvoiceId === null}
+        >
+          Mark as Paid
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={handleExportPdf}
+          startIcon={<FileDownload />}
+          disabled={selectedInvoiceId === null}
+        >
+          Export PDF
+        </Button>
       </Box>
 
       {snackbar && (
         <Snackbar open autoHideDuration={3000} onClose={() => setSnackbar(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-          <Alert severity={snackbar.severity} variant="filled">{snackbar.message}</Alert>
+          <Alert severity={snackbar.severity} variant="filled" sx={{ borderRadius: 2 }}>{snackbar.message}</Alert>
         </Snackbar>
       )}
-    </Box>
+    </PageLayout>
   )
 }

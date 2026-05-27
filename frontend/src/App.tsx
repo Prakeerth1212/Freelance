@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
-import { ThemeProvider, CssBaseline, Box } from '@mui/material'
+import { ThemeProvider, CssBaseline, Box, Fade } from '@mui/material'
 import { lightTheme, darkTheme } from './theme'
 import Sidebar from './components/Sidebar'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -38,14 +38,18 @@ export default function App() {
           />
         )}
         <Box sx={{ flex: 1, minHeight: '100vh', bgcolor: 'background.default' }}>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-            <Route path="/clients" element={<ProtectedRoute><ClientsPage /></ProtectedRoute>} />
-            <Route path="/projects" element={<ProtectedRoute><ProjectsPage /></ProtectedRoute>} />
-            <Route path="/invoices" element={<ProtectedRoute><InvoicesPage /></ProtectedRoute>} />
-            <Route path="/ai" element={<ProtectedRoute><AIPage /></ProtectedRoute>} />
-          </Routes>
+          <Fade in key={location.pathname} timeout={300}>
+            <Box>
+              <Routes location={location}>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+                <Route path="/clients" element={<ProtectedRoute><ClientsPage /></ProtectedRoute>} />
+                <Route path="/projects" element={<ProtectedRoute><ProjectsPage /></ProtectedRoute>} />
+                <Route path="/invoices" element={<ProtectedRoute><InvoicesPage /></ProtectedRoute>} />
+                <Route path="/ai" element={<ProtectedRoute><AIPage /></ProtectedRoute>} />
+              </Routes>
+            </Box>
+          </Fade>
         </Box>
       </Box>
     </ThemeProvider>

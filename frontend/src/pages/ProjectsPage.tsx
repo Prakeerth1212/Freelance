@@ -18,17 +18,22 @@ import {
   FormControl,
   Alert,
   Snackbar,
+  Skeleton,
 } from '@mui/material'
+import { Add, WorkHistory } from '@mui/icons-material'
 import { getClients, Client } from '../api/clients'
 import { getProjectsByClientId, createProject, Project } from '../api/projects'
 import { getTimeLogsByProjectId, createTimeLog, TimeLog } from '../api/timeLogs'
+import PageLayout from '../components/PageLayout'
 
 export default function ProjectsPage() {
   const [clients, setClients] = useState<Client[]>([])
   const [selectedClientId, setSelectedClientId] = useState<number | ''>('')
   const [projects, setProjects] = useState<Project[]>([])
+  const [loadingProjects, setLoadingProjects] = useState(false)
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null)
   const [timeLogs, setTimeLogs] = useState<TimeLog[]>([])
+  const [loadingLogs, setLoadingLogs] = useState(false)
   const [totalHours, setTotalHours] = useState(0)
   const [totalEarnings, setTotalEarnings] = useState(0)
 
@@ -48,9 +53,11 @@ export default function ProjectsPage() {
       updateTotals([])
       return
     }
+    setLoadingProjects(true)
     getProjectsByClientId(selectedClientId as number)
       .then(setProjects)
       .catch(() => {})
+      .finally(() => setLoadingProjects(false))
     setSelectedProjectId(null)
     setTimeLogs([])
     updateTotals([])
@@ -62,12 +69,14 @@ export default function ProjectsPage() {
       updateTotals([])
       return
     }
+    setLoadingLogs(true)
     getTimeLogsByProjectId(selectedProjectId)
       .then((logs) => {
         setTimeLogs(logs)
         updateTotals(logs)
       })
       .catch(() => {})
+      .finally(() => setLoadingLogs(false))
   }, [selectedProjectId])
 
   const updateTotals = (logs: TimeLog[]) => {
@@ -139,13 +148,24 @@ export default function ProjectsPage() {
     }
   }
 
-  return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>Projects & Time</Typography>
+  const selectedClient = selectedClientId !== '' ? clients.find((c) => c.id === selectedClientId) : null
 
-      <Paper sx={{ p: 2, mb: 3 }}>
+  return (
+    <PageLayout
+      title="Projects & Time"
+      subtitle="Track projects and log your work hours"
+    >
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2.5,
+          mb: 3,
+          border: (theme) => `1px solid ${theme.palette.divider}`,
+          borderRadius: 3,
+        }}
+      >
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={12} sm={4} md={3}>
             <FormControl fullWidth size="small">
               <InputLabel>Client</InputLabel>
               <Select
@@ -159,12 +179,18 @@ export default function ProjectsPage() {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={6} sm={3}>
-            <Typography variant="body2" color="text.secondary">Total Hours</Typography>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>{totalHours.toFixed(2)}</Typography>
+          <Grid item xs={6} sm={4} md={3}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+              Total Hours
+            </Typography>
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              {totalHours.toFixed(2)}
+            </Typography>
           </Grid>
-          <Grid item xs={6} sm={3}>
-            <Typography variant="body2" color="text.secondary">Earnings</Typography>
+          <Grid item xs={6} sm={4} md={3}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+              Earnings
+            </Typography>
             <Typography variant="h6" sx={{ fontWeight: 700, color: '#27ae60' }}>
               ${totalEarnings.toFixed(2)}
             </Typography>
@@ -174,8 +200,22 @@ export default function ProjectsPage() {
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>Projects</Typography>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2.5,
+              border: (theme) => `1px solid ${theme.palette.divider}`,
+              borderRadius: 3,
+            }}
+          >
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Projects
+              {selectedClient && (
+                <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+                  — {selectedClient.name}
+                </Typography>
+              )}
+            </Typography>
             <TableContainer>
               <Table size="small">
                 <TableHead>
@@ -187,32 +227,76 @@ export default function ProjectsPage() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {projects.map((p) => (
-                    <TableRow
-                      key={p.id}
-                      hover
-                      selected={selectedProjectId === p.id}
-                      onClick={() => setSelectedProjectId(p.id)}
-                      sx={{ cursor: 'pointer' }}
-                    >
-                      <TableCell>{p.id}</TableCell>
-                      <TableCell>{p.name}</TableCell>
-                      <TableCell align="right">${p.hourlyRate.toFixed(2)}</TableCell>
-                      <TableCell>{p.status}</TableCell>
-                    </TableRow>
-                  ))}
-                  {projects.length === 0 && (
+                  {loadingProjects
+                    ? Array.from({ length: 3 }).map((_, i) => (
+                        <TableRow key={i}>
+                          {Array.from({ length: 4 }).map((_, j) => (
+                            <TableCell key={j}>
+                              <Skeleton variant="text" width={j === 2 ? 60 : 80} />
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))
+                    : projects.map((p) => (
+                        <TableRow
+                          key={p.id}
+                          hover
+                          selected={selectedProjectId === p.id}
+                          onClick={() => setSelectedProjectId(p.id)}
+                          sx={{
+                            cursor: 'pointer',
+                            '&.Mui-selected': {
+                              bgcolor: (theme) =>
+                                theme.palette.mode === 'dark'
+                                  ? 'rgba(74,144,217,0.15)'
+                                  : 'rgba(74,144,217,0.08)',
+                            },
+                          }}
+                        >
+                          <TableCell sx={{ fontWeight: 600 }}>{p.id}</TableCell>
+                          <TableCell>{p.name}</TableCell>
+                          <TableCell align="right">${p.hourlyRate.toFixed(2)}</TableCell>
+                          <TableCell>
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                px: 1,
+                                py: 0.3,
+                                borderRadius: 1,
+                                bgcolor:
+                                  p.status === 'Active'
+                                    ? 'rgba(46,204,113,0.12)'
+                                    : p.status === 'Completed'
+                                      ? 'rgba(74,144,217,0.12)'
+                                      : 'rgba(243,156,18,0.12)',
+                                color:
+                                  p.status === 'Active'
+                                    ? '#2ecc71'
+                                    : p.status === 'Completed'
+                                      ? '#4A90D9'
+                                      : '#f39c12',
+                                fontWeight: 600,
+                              }}
+                            >
+                              {p.status}
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  {!loadingProjects && projects.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={4} align="center">No projects</TableCell>
+                      <TableCell colSpan={4} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                        {selectedClientId !== '' ? 'No projects for this client' : 'Select a client above'}
+                      </TableCell>
                     </TableRow>
                   )}
                 </TableBody>
               </Table>
             </TableContainer>
 
-            <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-              <TextField size="small" label="Name" value={projectForm.name} onChange={(e) => setProjectForm({ ...projectForm, name: e.target.value })} sx={{ flex: 1, minWidth: 120 }} />
-              <TextField size="small" label="Rate ($/hr)" type="number" value={projectForm.hourlyRate} onChange={(e) => setProjectForm({ ...projectForm, hourlyRate: e.target.value })} sx={{ width: 100 }} />
+            <Box sx={{ mt: 2.5, display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+              <TextField size="small" label="Project name" value={projectForm.name} onChange={(e) => setProjectForm({ ...projectForm, name: e.target.value })} sx={{ flex: 1, minWidth: 140 }} />
+              <TextField size="small" label="$/hr" type="number" value={projectForm.hourlyRate} onChange={(e) => setProjectForm({ ...projectForm, hourlyRate: e.target.value })} sx={{ width: 80 }} inputProps={{ step: 0.5, min: 0 }} />
               <FormControl size="small" sx={{ width: 110 }}>
                 <InputLabel>Status</InputLabel>
                 <Select value={projectForm.status} label="Status" onChange={(e) => setProjectForm({ ...projectForm, status: e.target.value })}>
@@ -221,14 +305,30 @@ export default function ProjectsPage() {
                   <MenuItem value="On Hold">On Hold</MenuItem>
                 </Select>
               </FormControl>
-              <Button variant="contained" size="small" onClick={handleAddProject}>Add Project</Button>
+              <Button variant="contained" size="small" onClick={handleAddProject} startIcon={<Add />}>
+                Add
+              </Button>
             </Box>
           </Paper>
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>Time Logs</Typography>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2.5,
+              border: (theme) => `1px solid ${theme.palette.divider}`,
+              borderRadius: 3,
+            }}
+          >
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Time Logs
+              {selectedProjectId && (
+                <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+                  — {projects.find((p) => p.id === selectedProjectId)?.name}
+                </Typography>
+              )}
+            </Typography>
             <TableContainer>
               <Table size="small">
                 <TableHead>
@@ -240,24 +340,38 @@ export default function ProjectsPage() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {timeLogs.map((t) => (
-                    <TableRow key={t.id} hover>
-                      <TableCell>{t.id}</TableCell>
-                      <TableCell>{t.date}</TableCell>
-                      <TableCell align="right">{t.hours.toFixed(2)}</TableCell>
-                      <TableCell>{t.description}</TableCell>
-                    </TableRow>
-                  ))}
-                  {timeLogs.length === 0 && (
+                  {loadingLogs
+                    ? Array.from({ length: 3 }).map((_, i) => (
+                        <TableRow key={i}>
+                          {Array.from({ length: 4 }).map((_, j) => (
+                            <TableCell key={j}>
+                              <Skeleton variant="text" width={j === 3 ? 120 : 60} />
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))
+                    : timeLogs.map((t) => (
+                        <TableRow key={t.id} hover>
+                          <TableCell sx={{ fontWeight: 600 }}>{t.id}</TableCell>
+                          <TableCell>{t.date}</TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 600 }}>{t.hours.toFixed(2)}</TableCell>
+                          <TableCell sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {t.description || '-'}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  {!loadingLogs && timeLogs.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={4} align="center">No time logs</TableCell>
+                      <TableCell colSpan={4} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                        {selectedProjectId !== null ? 'No time logs yet' : 'Select a project above'}
+                      </TableCell>
                     </TableRow>
                   )}
                 </TableBody>
               </Table>
             </TableContainer>
 
-            <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <Box sx={{ mt: 2.5, display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
               <TextField
                 size="small"
                 label="Date"
@@ -267,9 +381,11 @@ export default function ProjectsPage() {
                 InputLabelProps={{ shrink: true }}
                 sx={{ width: 140 }}
               />
-              <TextField size="small" label="Hours" type="number" value={logForm.hours} onChange={(e) => setLogForm({ ...logForm, hours: e.target.value })} sx={{ width: 80 }} inputProps={{ step: 0.25 }} />
+              <TextField size="small" label="Hours" type="number" value={logForm.hours} onChange={(e) => setLogForm({ ...logForm, hours: e.target.value })} sx={{ width: 80 }} inputProps={{ step: 0.25, min: 0, max: 24 }} />
               <TextField size="small" label="Description" value={logForm.description} onChange={(e) => setLogForm({ ...logForm, description: e.target.value })} sx={{ flex: 1, minWidth: 120 }} />
-              <Button variant="contained" size="small" onClick={handleAddLog}>Add Log</Button>
+              <Button variant="contained" size="small" onClick={handleAddLog} startIcon={<WorkHistory />}>
+                Add Log
+              </Button>
             </Box>
           </Paper>
         </Grid>
@@ -277,9 +393,9 @@ export default function ProjectsPage() {
 
       {snackbar && (
         <Snackbar open autoHideDuration={3000} onClose={() => setSnackbar(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-          <Alert severity={snackbar.severity} variant="filled">{snackbar.message}</Alert>
+          <Alert severity={snackbar.severity} variant="filled" sx={{ borderRadius: 2 }}>{snackbar.message}</Alert>
         </Snackbar>
       )}
-    </Box>
+    </PageLayout>
   )
 }
