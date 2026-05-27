@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom'
 import { ThemeProvider, CssBaseline, Box } from '@mui/material'
 import { lightTheme, darkTheme } from './theme'
 import Sidebar from './components/Sidebar'
+import ChatbotWidget from './components/ChatbotWidget'
 import ProtectedRoute from './components/ProtectedRoute'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
@@ -98,6 +99,7 @@ export default function App() {
               onLogout={handleLogout}
             />
           )}
+          {isLoggedIn && <ChatbotWidget darkMode={darkMode} />}
           <Box sx={{ flex: 1, minHeight: '100vh' }}>
             <Routes location={location}>
               <Route path="/login" element={<LoginPage />} />
