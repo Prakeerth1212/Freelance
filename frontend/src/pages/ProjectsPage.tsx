@@ -26,6 +26,7 @@ import { getClients, Client } from '../api/clients'
 import { getProjectsByClientId, createProject, Project } from '../api/projects'
 import { getTimeLogsByProjectId, createTimeLog, TimeLog } from '../api/timeLogs'
 import PageLayout from '../components/PageLayout'
+import { formatCurrency, currencySymbol } from '../utils/currency'
 
 const statusColors: Record<string, { bg: string; color: string }> = {
   Active: { bg: 'rgba(46,204,113,0.12)', color: '#2ecc71' },
@@ -209,7 +210,7 @@ export default function ProjectsPage() {
               Earnings
             </Typography>
             <Typography variant="h5" sx={{ fontWeight: 800, background: 'linear-gradient(135deg, #2ecc71, #27ae60)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              ${totalEarnings.toFixed(2)}
+              {formatCurrency(totalEarnings)}
             </Typography>
           </Grid>
         </Grid>
@@ -282,7 +283,7 @@ export default function ProjectsPage() {
                           </TableCell>
                           <TableCell sx={{ fontWeight: 600 }}>{p.name}</TableCell>
                           <TableCell align="right" sx={{ fontWeight: 700 }}>
-                            ${p.hourlyRate.toFixed(2)}
+                            {formatCurrency(p.hourlyRate)}
                           </TableCell>
                           <TableCell>
                             <Chip
@@ -311,7 +312,7 @@ export default function ProjectsPage() {
 
             <Box sx={{ mt: 2.5, display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
               <TextField size="small" label="Project name" value={projectForm.name} onChange={(e) => setProjectForm({ ...projectForm, name: e.target.value })} sx={{ flex: 1, minWidth: 140 }} />
-              <TextField size="small" label="$/hr" type="number" value={projectForm.hourlyRate} onChange={(e) => setProjectForm({ ...projectForm, hourlyRate: e.target.value })} sx={{ width: 80 }} inputProps={{ step: 0.5, min: 0 }} />
+              <TextField size="small" label={`${currencySymbol()}/hr`} type="number" value={projectForm.hourlyRate} onChange={(e) => setProjectForm({ ...projectForm, hourlyRate: e.target.value })} sx={{ width: 80 }} inputProps={{ step: 0.5, min: 0 }} />
               <FormControl size="small" sx={{ width: 110 }}>
                 <InputLabel>Status</InputLabel>
                 <Select value={projectForm.status} label="Status" onChange={(e) => setProjectForm({ ...projectForm, status: e.target.value })}>

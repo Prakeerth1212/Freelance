@@ -80,6 +80,7 @@ function TypingIndicator() {
 
 export default function ChatbotWidget({ darkMode }: { darkMode: boolean }) {
   const [open, setOpen] = useState(false)
+  const [hasOpened, setHasOpened] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -89,6 +90,16 @@ export default function ChatbotWidget({ darkMode }: { darkMode: boolean }) {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, loading])
+
+  useEffect(() => {
+    if (!hasOpened) {
+      const timer = setTimeout(() => {
+        setOpen(true)
+        setHasOpened(true)
+      }, 1500)
+      return () => clearTimeout(timer)
+    }
+  }, [hasOpened])
 
   const handleSend = async (text?: string) => {
     const prompt = (text || input).trim()

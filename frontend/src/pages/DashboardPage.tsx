@@ -31,6 +31,7 @@ import {
 } from 'recharts'
 import { getSummary, DashboardSummary } from '../api/dashboard'
 import PageLayout from '../components/PageLayout'
+import { formatCurrency, currencySymbol } from '../utils/currency'
 
 const metricCards = [
   {
@@ -85,7 +86,7 @@ export default function DashboardPage() {
     : []
 
   const formatValue = (key: string, value: number) => {
-    if (key === 'totalRevenue') return `$${value.toFixed(2)}`
+    if (key === 'totalRevenue') return formatCurrency(value)
     return value
   }
 
@@ -232,7 +233,7 @@ export default function DashboardPage() {
                   <XAxis dataKey="month" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
                   <Tooltip
-                    formatter={(value: number) => [`$${value.toFixed(2)}`, 'Revenue']}
+                    formatter={(value: number) => [formatCurrency(value), 'Revenue']}
                     contentStyle={{
                       borderRadius: 12,
                       border: 'none',
@@ -321,7 +322,7 @@ export default function DashboardPage() {
                         </TableCell>
                         <TableCell>{inv.projectName}</TableCell>
                         <TableCell align="right" sx={{ fontWeight: 700, color: '#ef4444' }}>
-                          ${inv.amount.toFixed(2)}
+                          {formatCurrency(inv.amount)}
                         </TableCell>
                         <TableCell>{inv.dueDate}</TableCell>
                       </TableRow>

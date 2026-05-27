@@ -31,6 +31,7 @@ import {
   Invoice,
 } from '../api/invoices'
 import PageLayout from '../components/PageLayout'
+import { formatCurrency } from '../utils/currency'
 
 const statusStyles: Record<string, { bg: string; color: string; label: string }> = {
   Paid: { bg: 'rgba(46,204,113,0.12)', color: '#2ecc71', label: 'Paid' },
@@ -198,7 +199,7 @@ export default function InvoicesPage() {
               <Skeleton variant="text" width={80} height={32} />
             ) : (
               <Typography variant="h5" sx={{ fontWeight: 800, color: unbilled > 0 ? '#2ecc71' : 'text.secondary' }}>
-                ${unbilled.toFixed(2)}
+                {formatCurrency(unbilled)}
               </Typography>
             )}
           </Grid>
@@ -208,7 +209,7 @@ export default function InvoicesPage() {
                 Rate
               </Typography>
               <Typography variant="h5" sx={{ fontWeight: 800 }}>
-                ${selectedProject.hourlyRate.toFixed(2)}/hr
+                {formatCurrency(selectedProject.hourlyRate)}/hr
               </Typography>
             </Grid>
           )}
@@ -285,7 +286,7 @@ export default function InvoicesPage() {
                         </TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>{inv.invoiceNumber}</TableCell>
                         <TableCell align="right" sx={{ fontWeight: 700 }}>
-                          ${inv.amount.toFixed(2)}
+                          {formatCurrency(inv.amount)}
                         </TableCell>
                         <TableCell>
                           <Chip
