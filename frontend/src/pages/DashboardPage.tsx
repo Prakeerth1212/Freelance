@@ -78,8 +78,8 @@ export default function DashboardPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  const chartData = data
-    ? Object.entries(data.monthlyRevenue || {}).map(([month, amount]) => ({
+  const chartData = data?.monthlyRevenue
+    ? Object.entries(data.monthlyRevenue).map(([month, amount]) => ({
         month,
         revenue: amount,
       }))
@@ -174,7 +174,7 @@ export default function DashboardPage() {
                       WebkitTextFillColor: 'transparent',
                     }}
                   >
-                    {formatValue(card.key, (data as any)[card.key] ?? 0)}
+                    {formatValue(card.key, (data as any)?.[card.key] ?? 0)}
                   </Typography>
                 )}
                 <Typography
