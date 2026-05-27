@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { ThemeProvider, CssBaseline, Box } from '@mui/material'
 import { lightTheme, darkTheme } from './theme'
+import { ToastProvider } from './utils/Toast'
 import Sidebar from './components/Sidebar'
 import ChatbotWidget from './components/ChatbotWidget'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -89,6 +90,7 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      <ToastProvider>
       <Box sx={{ position: 'relative', minHeight: '100vh' }}>
         <AnimatedBackground darkMode={darkMode} />
         <Box sx={{ display: 'flex', position: 'relative', zIndex: 1 }}>
@@ -112,6 +114,7 @@ export default function App() {
           </Box>
         </Box>
       </Box>
+      </ToastProvider>
     </ThemeProvider>
   )
 }

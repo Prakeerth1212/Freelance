@@ -2,6 +2,7 @@ package com.freelancehub.controller;
 
 import com.freelancehub.model.User;
 import com.freelancehub.service.AuthService;
+import com.freelancehub.util.JwtUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,9 +13,11 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtUtil jwtUtil;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, JwtUtil jwtUtil) {
         this.authService = authService;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/login")
@@ -31,11 +34,10 @@ public class AuthController {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
         }
 
-        User user = authService.validateToken(token);
         return ResponseEntity.ok(Map.of(
                 "token", token,
-                "username", user.getUsername(),
-                "role", user.getRole()
+                "username", username,
+                "role", "user"
         ));
     }
 
@@ -53,7 +55,7 @@ public class AuthController {
             return ResponseEntity.status(409).body(Map.of("error", "Username already exists"));
         }
 
-        String token = authService.createToken(user);
+        String token = jwtUtil.generateToken(user);
         return ResponseEntity.ok(Map.of(
                 "token", token,
                 "username", user.getUsername(),

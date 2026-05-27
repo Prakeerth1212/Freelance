@@ -2,28 +2,39 @@ package com.freelancehub.service;
 
 import com.freelancehub.dao.UserDAO;
 import com.freelancehub.model.User;
+import com.freelancehub.util.JwtUtil;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.UUID;
 
 @Service
 public class AuthService {
 
     private final UserDAO userDAO;
-    private final ConcurrentHashMap<String, User> activeTokens = new ConcurrentHashMap<>();
+    private final JwtUtil jwtUtil;
+    private final BCryptPasswordEncoder encoder;
 
-    public AuthService(UserDAO userDAO) {
+    public AuthService(UserDAO userDAO, JwtUtil jwtUtil) {
         this.userDAO = userDAO;
+        this.jwtUtil = jwtUtil;
+        this.encoder = new BCryptPasswordEncoder();
     }
 
     public String authenticate(String username, String password) {
-        return userDAO.authenticate(username, password)
-                .map(user -> {
-                    String token = UUID.randomUUID().toString();
-                    activeTokens.put(token, user);
-                    return token;
+        return userDAO.findByUsername(username)
+                .filter(user -> {
+                    String hash = user.getPasswordHash();
+                    if (hash == null) return false;
+                    if (hash.startsWith("$2a$") || hash.startsWith("$2b$")) {
+                        return encoder.matches(password, hash);
+                    }
+                    boolean match = password.equals(hash);
+                    if (match) {
+                        user.setPasswordHash(encoder.encode(password));
+                        userDAO.updatePassword(user);
+                    }
+                    return match;
                 })
+                .map(jwtUtil::generateToken)
                 .orElse(null);
     }
 
@@ -31,21 +42,7 @@ public class AuthService {
         if (userDAO.findByUsername(username).isPresent()) {
             return null;
         }
-        User user = new User(username, password, "user");
+        User user = new User(username, encoder.encode(password), "user");
         return userDAO.save(user);
-    }
-
-    public String createToken(User user) {
-        String token = UUID.randomUUID().toString();
-        activeTokens.put(token, user);
-        return token;
-    }
-
-    public User validateToken(String token) {
-        return activeTokens.get(token);
-    }
-
-    public void invalidateToken(String token) {
-        activeTokens.remove(token);
     }
 }

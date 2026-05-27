@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import {
   Box,
@@ -9,6 +10,9 @@ import {
   IconButton,
   Divider,
   Tooltip,
+  Drawer,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import PeopleIcon from '@mui/icons-material/People'
@@ -17,6 +21,9 @@ import ReceiptIcon from '@mui/icons-material/Receipt'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import LogoutIcon from '@mui/icons-material/Logout'
+import MenuIcon from '@mui/icons-material/Menu'
+
+const DRAWER_WIDTH = 250
 
 const navItems = [
   { label: 'Dashboard', path: '/', icon: <DashboardIcon /> },
@@ -34,20 +41,22 @@ interface SidebarProps {
 export default function Sidebar({ darkMode, onToggleTheme, onLogout }: SidebarProps) {
   const location = useLocation()
   const navigate = useNavigate()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  const [mobileOpen, setMobileOpen] = useState(false)
   const username = localStorage.getItem('username') || 'User'
 
-  return (
+  const content = (
     <Box
       sx={{
-        width: 250,
-        minHeight: '100vh',
+        width: DRAWER_WIDTH,
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
         bgcolor: darkMode ? 'rgba(12, 12, 24, 0.85)' : 'rgba(248, 249, 252, 0.85)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
         borderRight: darkMode ? '1px solid rgba(255,255,255,0.04)' : '1px solid rgba(0,0,0,0.04)',
-        display: 'flex',
-        flexDirection: 'column',
-        transition: 'all 0.3s ease',
       }}
     >
       <Box
@@ -102,7 +111,7 @@ export default function Sidebar({ darkMode, onToggleTheme, onLogout }: SidebarPr
             <Tooltip key={item.path} title={item.label} placement="right" arrow>
               <ListItemButton
                 selected={active}
-                onClick={() => navigate(item.path)}
+                onClick={() => { navigate(item.path); if (isMobile) setMobileOpen(false) }}
                 sx={{
                   borderRadius: 2.5,
                   mb: 0.5,
@@ -255,5 +264,52 @@ export default function Sidebar({ darkMode, onToggleTheme, onLogout }: SidebarPr
         </Tooltip>
       </Box>
     </Box>
+  )
+
+  if (isMobile) {
+    return (
+      <>
+        <IconButton
+          onClick={() => setMobileOpen(true)}
+          sx={{
+            position: 'fixed',
+            top: 10,
+            left: 10,
+            zIndex: 1200,
+            bgcolor: darkMode ? 'rgba(12,12,24,0.8)' : 'rgba(248,249,252,0.8)',
+            backdropFilter: 'blur(12px)',
+            borderRadius: 2,
+            '&:hover': { bgcolor: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' },
+          }}
+        >
+          <MenuIcon />
+        </IconButton>
+        <Drawer
+          open={mobileOpen}
+          onClose={() => setMobileOpen(false)}
+          variant="temporary"
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            '& .MuiDrawer-paper': { width: DRAWER_WIDTH, border: 'none' },
+          }}
+        >
+          {content}
+        </Drawer>
+      </>
+    )
+  }
+
+  return (
+    <Drawer
+      variant="permanent"
+      open
+      sx={{
+        width: DRAWER_WIDTH,
+        flexShrink: 0,
+        '& .MuiDrawer-paper': { width: DRAWER_WIDTH, border: 'none', position: 'relative' },
+      }}
+    >
+      {content}
+    </Drawer>
   )
 }

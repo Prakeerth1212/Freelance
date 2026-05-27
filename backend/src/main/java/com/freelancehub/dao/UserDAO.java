@@ -21,15 +21,6 @@ public class UserDAO {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Optional<User> authenticate(String username, String password) {
-        try {
-            String sql = "SELECT * FROM users WHERE username = ? AND password_hash = ?";
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, userRowMapper(), username, password));
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
-    }
-
     public Optional<User> findByUsername(String username) {
         try {
             String sql = "SELECT * FROM users WHERE username = ?";
@@ -51,6 +42,11 @@ public class UserDAO {
         }, keyHolder);
         user.setId(keyHolder.getKey().intValue());
         return user;
+    }
+
+    public void updatePassword(User user) {
+        jdbcTemplate.update("UPDATE users SET password_hash = ? WHERE id = ?",
+                user.getPasswordHash(), user.getId());
     }
 
     private RowMapper<User> userRowMapper() {
