@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import {
   Box,
   Typography,
@@ -16,6 +16,7 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import CloseIcon from '@mui/icons-material/Close'
 import ForumIcon from '@mui/icons-material/Forum'
 import { generate } from '../api/ai'
+import GmailDraftButton from './GmailDraftButton'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -315,66 +316,73 @@ export default function ChatbotWidget({ darkMode }: { darkMode: boolean }) {
             )}
 
             {messages.map((msg, i) => (
-              <Fade key={i} in timeout={300}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    gap: 1,
-                    alignItems: 'flex-start',
-                    flexDirection: msg.role === 'user' ? 'row-reverse' : 'row',
-                    px: 0.5,
-                  }}
-                >
+              <React.Fragment key={i}>
+                <Fade in timeout={300}>
                   <Box
                     sx={{
-                      width: 26,
-                      height: 26,
-                      borderRadius: '50%',
                       display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                      ...(msg.role === 'user'
-                        ? {
-                            background: 'linear-gradient(135deg, #4A90D9, #357abd)',
-                            color: '#fff',
-                          }
-                        : {
-                            background: 'linear-gradient(135deg, rgba(74,144,217,0.1), rgba(74,144,217,0.05))',
-                            color: '#4A90D9',
-                          }),
+                      gap: 1,
+                      alignItems: 'flex-start',
+                      flexDirection: msg.role === 'user' ? 'row-reverse' : 'row',
+                      px: 0.5,
                     }}
                   >
-                    {msg.role === 'user' ? <PersonIcon sx={{ fontSize: 14 }} /> : <SmartToyIcon sx={{ fontSize: 14 }} />}
+                    <Box
+                      sx={{
+                        width: 26,
+                        height: 26,
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        ...(msg.role === 'user'
+                          ? {
+                              background: 'linear-gradient(135deg, #4A90D9, #357abd)',
+                              color: '#fff',
+                            }
+                          : {
+                              background: 'linear-gradient(135deg, rgba(74,144,217,0.1), rgba(74,144,217,0.05))',
+                              color: '#4A90D9',
+                            }),
+                      }}
+                    >
+                      {msg.role === 'user' ? <PersonIcon sx={{ fontSize: 14 }} /> : <SmartToyIcon sx={{ fontSize: 14 }} />}
+                    </Box>
+                    <Box
+                      sx={{
+                        maxWidth: '80%',
+                        px: 1.5,
+                        py: 1,
+                        borderRadius: 2.5,
+                        ...(msg.role === 'user'
+                          ? {
+                              borderBottomRightRadius: 4,
+                              background: 'linear-gradient(135deg, #4A90D9, #357abd)',
+                              color: '#fff',
+                            }
+                          : {
+                              borderBottomLeftRadius: 4,
+                              bgcolor: (theme) =>
+                                theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)',
+                              color: 'text.primary',
+                            }),
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
+                        fontSize: '0.8rem',
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      {msg.content}
+                    </Box>
                   </Box>
-                  <Box
-                    sx={{
-                      maxWidth: '80%',
-                      px: 1.5,
-                      py: 1,
-                      borderRadius: 2.5,
-                      ...(msg.role === 'user'
-                        ? {
-                            borderBottomRightRadius: 4,
-                            background: 'linear-gradient(135deg, #4A90D9, #357abd)',
-                            color: '#fff',
-                          }
-                        : {
-                            borderBottomLeftRadius: 4,
-                            bgcolor: (theme) =>
-                              theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)',
-                            color: 'text.primary',
-                          }),
-                      whiteSpace: 'pre-wrap',
-                      wordBreak: 'break-word',
-                      fontSize: '0.8rem',
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    {msg.content}
+                </Fade>
+                {msg.role === 'assistant' && (
+                  <Box sx={{ display: 'flex', gap: 1, pl: 5, mt: -0.5 }}>
+                    <GmailDraftButton subject="From FreelanceHub AI" body={msg.content} />
                   </Box>
-                </Box>
-              </Fade>
+                )}
+              </React.Fragment>
             ))}
 
             {loading && <TypingIndicator />}
