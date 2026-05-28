@@ -27,9 +27,10 @@ function toCsv(invs: Invoice[], projectName: string): string {
 
 function downloadCsv(invs: Invoice[], name: string) {
   const blob = new Blob([toCsv(invs, name)], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
-  a.href = URL.createObjectURL(blob); a.download = 'invoices.csv'; a.click()
-  URL.revokeObjectURL(URL.createObjectURL(blob))
+  a.href = url; a.download = 'invoices.csv'; a.click()
+  URL.revokeObjectURL(url)
 }
 
 export default function InvoicesPage() {

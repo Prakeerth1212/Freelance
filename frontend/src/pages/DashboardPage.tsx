@@ -31,7 +31,7 @@ import {
 } from 'recharts'
 import { getSummary, DashboardSummary } from '../api/dashboard'
 import PageLayout from '../components/PageLayout'
-import { formatCurrency, currencySymbol } from '../utils/currency'
+import { formatCurrency } from '../utils/currency'
 
 const metricCards = [
   {

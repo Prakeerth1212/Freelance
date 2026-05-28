@@ -27,7 +27,7 @@ public class DatabaseConfig {
         config.setJdbcUrl(dbUrl);
         config.setUsername(dbUser);
         config.setPassword(dbPassword);
-        config.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        // Driver auto-detected from JDBC URL
         config.setMaximumPoolSize(10);
         config.setMinimumIdle(2);
         config.setIdleTimeout(30000);

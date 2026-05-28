@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 import { Box, Typography, Select, MenuItem, SelectChangeEvent } from '@mui/material'
-import { getCurrency, setCurrency, currencyOptions, currencySymbol } from '../utils/currency'
+import { getCurrency, setCurrency, currencyOptions } from '../utils/currency'
 
 interface PageLayoutProps {
   title: ReactNode
