@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FreelanceHub — Project Summary</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', -apple-system, sans-serif; color: #1e293b; background: #fff; line-height: 1.7; padding: 40px; max-width: 900px; margin: auto; }
+h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 4px; background: linear-gradient(135deg, #4A90D9, #6ba8e8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.subtitle { font-size: 0.95rem; color: #64748b; margin-bottom: 32px; }
+.section { margin-bottom: 28px; }
+h2 { font-size: 1.2rem; font-weight: 700; color: #0f172a; padding-bottom: 6px; border-bottom: 2px solid #e2e8f0; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+h2 .badge { font-size: 0.65rem; font-weight: 700; background: #4A90D9; color: #fff; padding: 2px 10px; border-radius: 10px; -webkit-text-fill-color: #fff; }
+h3 { font-size: 0.95rem; font-weight: 700; color: #334155; margin: 12px 0 4px; }
+p, li { font-size: 0.88rem; color: #475569; }
+ul { padding-left: 20px; margin: 4px 0 8px; }
+li { margin-bottom: 3px; }
+table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; font-size: 0.85rem; }
+th { background: #f1f5f9; text-align: left; padding: 8px 10px; font-weight: 700; color: #0f172a; border: 1px solid #e2e8f0; }
+td { padding: 7px 10px; border: 1px solid #e2e8f0; }
+tr:nth-child(even) { background: #f8fafc; }
+.tag { display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; margin-right: 4px; }
+.tag-blue { background: #dbeafe; color: #2563eb; }
+.tag-green { background: #d1fae5; color: #059669; }
+.tag-red { background: #fee2e2; color: #dc2626; }
+.tag-purple { background: #ede9fe; color: #7c3aed; }
+.tag-amber { background: #fef3c7; color: #d97706; }
+.code { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; background: #f1f5f9; padding: 1px 6px; border-radius: 4px; color: #0f172a; }
+.footer { margin-top: 36px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 0.8rem; color: #94a3b8; text-align: center; }
+@media print { body { padding: 20px; } .no-print { display: none; } }
+</style>
+</head>
+<body>
+
+<h1>FreelanceHub</h1>
+<p class="subtitle">Full-Stack Freelance Business Management Application — Complete Project Summary</p>
+
+<div class="section">
+<h2>📋 Overview</h2>
+<p>FreelanceHub is a full-stack freelance business management application built with <strong>React + TypeScript + Vite + MUI</strong> (frontend) and <strong>Spring Boot 3 + MySQL</strong> (backend). Originally a basic CRUD app with outdated UI and plain-text passwords, it was transformed into a modern, production-ready application through a comprehensive overhaul covering security, UI/UX, currency support, and developer tooling.</p>
+</div>
+
+<div class="section">
+<h2>🔐 Security &amp; Authentication <span class="badge">HIGH</span></h2>
+<table>
+  <tr><th>Area</th><th>Before</th><th>After</th></tr>
+  <tr><td>Password storage</td><td>Plain text (<code>NoOpPasswordEncoder</code>)</td><td><strong>BCrypt</strong> hashing; legacy passwords auto-upgraded on first login</td></tr>
+  <tr><td>Auth tokens</td><td>UUID in <code>ConcurrentHashMap</code> (lost on restart)</td><td><strong>JWT</strong> (HMAC-SHA256, 7-day expiry, survives restarts)</td></tr>
+  <tr><td>CORS</td><td>Broken — Security disabled CORS while MVC config existed</td><td>Proper <code>CorsConfigurationSource</code> bean, allows all origins</td></tr>
+</table>
+</div>
+
+<div class="section">
+<h2>🎨 UI/UX Overhaul <span class="badge">MAJOR</span></h2>
+
+<h3>Design System</h3>
+<ul>
+  <li>Dual light/dark theme with refined palettes and component overrides (Card, Button, Table, Dialog, Chip, TextField)</li>
+  <li>Inter font family, custom scrollbars, keyframe animations (float, pulse-glow, shimmer, typing-dot)</li>
+  <li>Glass morphism utilities (<code>backdrop-filter: blur</code>)</li>
+</ul>
+
+<h3>Key Components</h3>
+<table>
+  <tr><th>Component</th><th>Improvements</th></tr>
+  <tr><td>Sidebar</td><td>Glass morphism, gradient nav active states, responsive — permanent drawer on desktop, hamburger menu on mobile</td></tr>
+  <tr><td>LoginPage</td><td>Animated floating gradient orbs, glass card with backdrop-blur, fade-in entrance</td></tr>
+  <tr><td>PageLayout</td><td>Consistent header (title + subtitle + action) with currency dropdown, 1400px max-width</td></tr>
+  <tr><td>DashboardPage</td><td>Gradient metric cards with lift hover, SVG bar chart (Recharts), skeleton loaders, empty states</td></tr>
+  <tr><td>ClientsPage</td><td>Avatar initials, monospace #ID, delete confirmation, search bar, pagination, CSV export, form validation</td></tr>
+  <tr><td>ProjectsPage</td><td>Status chips, monospace #ID, gradient earnings, dynamic currency label</td></tr>
+  <tr><td>InvoicesPage</td><td>Custom status chips, selected row accent, search, pagination, CSV export, Generate &amp; Mark Paid buttons</td></tr>
+  <tr><td>AIPage</td><td>Chat interface with bubbles, typing indicator, suggestion chips</td></tr>
+  <tr><td>ChatbotWidget</td><td>Floating FAB (56px), 380×560px panel, auto-opens after 1.5s</td></tr>
+</table>
+</div>
+
+<div class="section">
+<h2>💰 Multi-Currency Support</h2>
+<p>Formatting utility (<code>utils/currency.ts</code>) supporting <strong>7 currencies</strong> with locale-aware number formatting:</p>
+<table>
+  <tr><th>Currency</th><th>Symbol</th><th>Locale</th><th>Example</th></tr>
+  <tr><td>USD</td><td>$</td><td>en-US</td><td>$1,234.56</td></tr>
+  <tr><td>INR</td><td>₹</td><td>en-IN</td><td>₹1,23,456.78</td></tr>
+  <tr><td>EUR</td><td>€</td><td>de-DE</td><td>1.234,56 €</td></tr>
+  <tr><td>GBP</td><td>£</td><td>en-GB</td><td>£1,234.56</td></tr>
+  <tr><td>JPY</td><td>¥</td><td>ja-JP</td><td>¥1,235 (0 decimals)</td></tr>
+  <tr><td>CAD</td><td>C$</td><td>en-CA</td><td>C$1,234.56</td></tr>
+  <tr><td>AUD</td><td>A$</td><td>en-AU</td><td>A$1,234.56</td></tr>
+</table>
+<p>Currency selector is a <strong>dropdown</strong> in the PageLayout header (visible on every page). Selection stored in localStorage.</p>
+</div>
+
+<div class="section">
+<h2>🐛 Bug Fixes &amp; Tooling</h2>
+<table>
+  <tr><th>Issue</th><th>Fix</th></tr>
+  <tr><td>Blank page on API 403</td><td>Optional chaining (<code>data?.property</code>) in DashboardPage + global 401/403 interceptor redirects to login</td></tr>
+  <tr><td>Build fails on Windows (<code>&&</code> in npm script)</td><td>Cross-platform <code>build.js</code> using Node.js <code>child_process</code> + <code>createRequire</code></td></tr>
+  <tr><td>Toast notifications</td><td>Global <code>ToastProvider</code> + <code>useToast()</code> hook — success/error on all CRUD operations</td></tr>
+</table>
+</div>
+
+<div class="section">
+<h2>🛠 DevOps &amp; Deployment</h2>
+<ul>
+  <li><strong>Build pipeline</strong>: <code>node build.js</code> → TypeScript compile + Vite production build</li>
+  <li><strong>Static serving</strong>: Frontend dist copied to <code>backend/src/main/resources/static/</code> — single JAR serves both API and UI</li>
+  <li><strong>Deployment</strong>: Configured for Railway &amp; Render — <code>cd backend && mvn clean package -DskipTests</code></li>
+  <li><strong>Auto-deploy</strong>: Push to <code>master</code> triggers automatic redeployment</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>📊 Tech Stack</h2>
+<table>
+  <tr><th>Layer</th><th>Technologies</th></tr>
+  <tr><td>Frontend</td><td>React 18, TypeScript, Vite, MUI v5, Recharts, Axios</td></tr>
+  <tr><td>Backend</td><td>Spring Boot 3.4.1, Java 21, Spring Security, Spring JDBC, MySQL</td></tr>
+  <tr><td>Libraries</td><td>JJWT 0.12.6, Gson, iTextPDF 8.x, BouncyCastle</td></tr>
+  <tr><td>Infrastructure</td><td>Railway / Render, Git, Maven</td></tr>
+</table>
+</div>
+
+<div class="section">
+<h2>🚀 Future Possibilities</h2>
+<ul>
+  <li>Server-side pagination for larger datasets</li>
+  <li>Real JWT secret via <code>JWT_SECRET</code> environment variable</li>
+  <li>Role-based access (admin / user)</li>
+  <li>SMTP email notifications (invoice reminders)</li>
+  <li>Dashboard date range picker for filtering charts</li>
+  <li>File uploads for client avatars and project assets</li>
+</ul>
+</div>
+
+<div class="footer no-print">
+  <p>Generated from FreelanceHub repository — <span id="date"></span></p>
+</div>
+
+<script>document.getElementById('date').textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })</script>
+
+</body>
+</html>
